@@ -1,15 +1,15 @@
 export function PrivacyPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-16">
-      <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+      <div className="mb-6 rounded-lg border border-terracotta bg-terracotta/10 px-4 py-3 text-sm text-ink">
         Placeholder draft — needs legal review before launch. Not final, and not a substitute for
         advice from a qualified lawyer familiar with India's DPDP Act.
       </div>
       <h1 className="text-2xl font-bold">Privacy Policy</h1>
 
-      <div className="mt-8 flex flex-col gap-8 text-sm text-neutral-600 dark:text-neutral-300">
+      <div className="mt-8 flex flex-col gap-8 text-sm text-ink-muted">
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">What we collect</h2>
+          <h2 className="font-display text-base font-semibold text-ink">What we collect</h2>
           <p className="mt-2">
             Your quiz answers (sex, age, height, weight, activity level, goal, dietary
             restrictions, allergens, cuisine preference), your account email, and the plan/history
@@ -19,7 +19,7 @@ export function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Why we collect it</h2>
+          <h2 className="font-display text-base font-semibold text-ink">Why we collect it</h2>
           <p className="mt-2">
             Solely to compute and generate your personalized calorie/macro targets and meal plan,
             and to avoid repeating dishes you've recently eaten. Nothing here is used for
@@ -28,7 +28,7 @@ export function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">How it's protected</h2>
+          <h2 className="font-display text-base font-semibold text-ink">How it's protected</h2>
           <p className="mt-2">
             This is health-adjacent data. It's stored in a Postgres database with row-level
             security enforced at the database layer, not just the application layer — your plan
@@ -39,7 +39,7 @@ export function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Your rights (DPDP Act, India)</h2>
+          <h2 className="font-display text-base font-semibold text-ink">Your rights (DPDP Act, India)</h2>
           <p className="mt-2">
             Under India's Digital Personal Data Protection Act, you have the right to access,
             correct, and request erasure of your personal data, and to withdraw consent at any
@@ -48,7 +48,7 @@ export function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Retention &amp; deletion</h2>
+          <h2 className="font-display text-base font-semibold text-ink">Retention &amp; deletion</h2>
           <p className="mt-2">
             We retain your data for as long as your account is active. Deleting your account
             deletes your profile, plan, and history data.
@@ -56,7 +56,7 @@ export function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Not medical advice</h2>
+          <h2 className="font-display text-base font-semibold text-ink">Not medical advice</h2>
           <p className="mt-2">
             FITTAYI is not a substitute for professional medical or dietetic advice, and none of
             the data we collect is reviewed by a clinician. See our Terms of Service for more.

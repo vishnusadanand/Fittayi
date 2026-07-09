@@ -144,13 +144,13 @@ export function QuizPage() {
     <div className="mx-auto max-w-xl px-4 py-12">
       {step !== "result" && step !== "blocked" && (
         <div className="mb-8">
-          <div className="h-1 w-full rounded-full bg-neutral-200 dark:bg-neutral-800">
+          <div className="h-1 w-full rounded-full bg-line">
             <div
-              className="h-1 rounded-full bg-brand-600 transition-all"
+              className="h-1 rounded-full bg-gold transition-all"
               style={{ width: `${((stepIndex + 1) / STEP_ORDER.length) * 100}%` }}
             />
           </div>
-          <p className="mt-2 text-xs text-neutral-500">
+          <p className="mt-2 text-xs text-ink-muted">
             Question {stepIndex + 1} of {STEP_ORDER.length}
           </p>
         </div>
@@ -230,8 +230,8 @@ export function QuizPage() {
         <ScreeningQuestion age={answers.age ?? 0} onAnswer={handleScreening} />
       )}
 
-      {loading && <p className="text-center text-sm text-neutral-500">Building your plan...</p>}
-      {error && <p className="text-center text-sm text-red-600">{error}</p>}
+      {loading && <p className="text-center text-sm text-ink-muted">Building your plan...</p>}
+      {error && <p className="text-center text-sm text-terracotta">{error}</p>}
 
       {step === "blocked" && <BlockedScreen />}
 
@@ -251,7 +251,7 @@ export function QuizPage() {
 function QuestionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="text-xl font-semibold">{title}</h2>
+      <h2 className="font-display text-xl font-semibold">{title}</h2>
       <div className="mt-6">{children}</div>
     </div>
   );
@@ -270,7 +270,7 @@ function OptionButtons({
         <button
           key={opt.value}
           onClick={() => onSelect(opt.value)}
-          className="rounded-lg border border-neutral-200 px-4 py-3 text-left hover:border-brand-500 hover:bg-brand-50 dark:border-neutral-800 dark:hover:bg-brand-950"
+          className="rounded-lg border border-line bg-surface px-4 py-3 text-left transition-colors hover:border-gold hover:bg-surface-raised"
         >
           {opt.label}
         </button>
@@ -303,15 +303,15 @@ function NumberQuestion({
           type="number"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="w-32 rounded-lg border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="w-32 rounded-lg border border-line bg-surface px-3 py-2 font-mono tabular-nums text-ink"
           autoFocus
         />
-        <span className="text-neutral-500">{suffix}</span>
+        <span className="text-ink-muted">{suffix}</span>
       </div>
       <button
         disabled={!valid}
         onClick={() => onSubmit(numeric)}
-        className="mt-6 rounded-full bg-brand-600 px-6 py-2 font-medium text-white disabled:opacity-40"
+        className="mt-6 rounded-full bg-gold px-6 py-2 font-medium text-backwater hover:brightness-90 disabled:opacity-40"
       >
         Next
       </button>
@@ -335,10 +335,10 @@ function AllergenQuestion({ onSubmit }: { onSubmit: (allergens: string[]) => voi
           <button
             key={allergen}
             onClick={() => toggle(allergen)}
-            className={`rounded-full border px-4 py-2 text-sm capitalize ${
+            className={`rounded-full border px-4 py-2 text-sm capitalize transition-colors ${
               selected.includes(allergen)
-                ? "border-brand-600 bg-brand-600 text-white"
-                : "border-neutral-300 dark:border-neutral-700"
+                ? "border-gold bg-gold text-backwater"
+                : "border-line bg-surface hover:border-gold"
             }`}
           >
             {allergen}
@@ -347,7 +347,7 @@ function AllergenQuestion({ onSubmit }: { onSubmit: (allergens: string[]) => voi
       </div>
       <button
         onClick={() => onSubmit(selected)}
-        className="mt-6 rounded-full bg-brand-600 px-6 py-2 font-medium text-white"
+        className="mt-6 rounded-full bg-gold px-6 py-2 font-medium text-backwater hover:brightness-90"
       >
         {selected.length === 0 ? "None of these — Next" : "Next"}
       </button>
@@ -364,7 +364,7 @@ function ScreeningQuestion({ age, onAnswer }: { age: number; onAnswer: (passed: 
 
   return (
     <QuestionCard title="Have you ever been diagnosed with an eating disorder?">
-      <p className="mb-4 text-sm text-neutral-500">
+      <p className="mb-4 text-sm text-ink-muted">
         We ask this so we don't generate a restrictive calorie plan for someone it could harm.
       </p>
       <OptionButtons
@@ -380,14 +380,14 @@ function ScreeningQuestion({ age, onAnswer }: { age: number; onAnswer: (passed: 
 
 function BlockedScreen({ reason }: { reason?: "age" | "ed" }) {
   return (
-    <div className="rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
-      <h2 className="text-xl font-semibold">We can't generate a plan for you right now</h2>
-      <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
+    <div className="rounded-xl border border-line bg-surface p-6">
+      <h2 className="font-display text-xl font-semibold">We can't generate a plan for you right now</h2>
+      <p className="mt-3 text-sm text-ink-muted">
         {reason === "age"
           ? "FITTAYI is built for adults (18+). If you're looking for nutrition guidance, please talk to a parent/guardian, your school counselor, or a pediatrician."
           : "FITTAYI's calorie-restricted plans aren't appropriate for anyone with a history of disordered eating. This isn't a judgment — it's a safety limit we hold for everyone."}
       </p>
-      <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
+      <p className="mt-3 text-sm text-ink-muted">
         If you'd like to talk to someone, NIMHANS' toll-free helpline (080-46110007) and iCall
         (9152987821, icallhelpline.org) both offer free, confidential support in India.
       </p>
@@ -406,7 +406,7 @@ function SampleResult({
 }) {
   return (
     <div>
-      <h2 className="text-xl font-semibold">Your sample day</h2>
+      <h2 className="font-display text-xl font-semibold">Your sample day</h2>
 
       {calorieResult.wasFloorClamped && (
         <FloorClampBanner clampReason={calorieResult.clampReason} />
@@ -414,24 +414,25 @@ function SampleResult({
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Calories" value={calorieResult.calories} />
-        <Stat label="Protein" value={`${calorieResult.proteinG}g`} />
-        <Stat label="Carbs" value={`${calorieResult.carbsG}g`} />
-        <Stat label="Fat" value={`${calorieResult.fatG}g`} />
+        <Stat label="Protein" value={calorieResult.proteinG} suffix="g" />
+        <Stat label="Carbs" value={calorieResult.carbsG} suffix="g" />
+        <Stat label="Fat" value={calorieResult.fatG} suffix="g" />
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
         {samplePlan.map(({ slot, dish }) => (
-          <div key={slot} className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-            <p className="text-xs font-semibold uppercase text-neutral-500">{MEAL_SLOT_LABELS[slot]}</p>
+          <div key={slot} className="rounded-lg border border-line bg-surface p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{MEAL_SLOT_LABELS[slot]}</p>
             {dish ? (
-              <>
-                <p className="mt-1 font-medium">{dish.name}</p>
-                <p className="text-sm text-neutral-500">
-                  {dish.calories} kcal &middot; {dish.protein_g}g protein
+              <div className="mt-1 flex items-baseline justify-between gap-3">
+                <p className="font-medium">{dish.name}</p>
+                <p className="shrink-0 font-mono text-sm tabular-nums text-gold">
+                  {dish.calories} kcal{" "}
+                  <span className="font-body text-ink-muted">&middot; {dish.protein_g}g protein</span>
                 </p>
-              </>
+              </div>
             ) : (
-              <p className="mt-1 text-sm text-neutral-500">No match found in our catalog yet for this slot.</p>
+              <p className="mt-1 text-sm text-ink-muted">No match found in our catalog yet for this slot.</p>
             )}
           </div>
         ))}
@@ -439,7 +440,7 @@ function SampleResult({
 
       <button
         onClick={onSignup}
-        className="mt-8 w-full rounded-full bg-brand-600 px-6 py-3 font-semibold text-white"
+        className="mt-8 w-full rounded-full bg-gold px-6 py-3 font-semibold text-backwater hover:brightness-90"
       >
         Sign up for your full week
       </button>
@@ -447,11 +448,14 @@ function SampleResult({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string | number }) {
+function Stat({ label, value, suffix }: { label: string; value: string | number; suffix?: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 p-3 text-center dark:border-neutral-800">
-      <div className="text-lg font-bold">{value}</div>
-      <div className="text-xs text-neutral-500">{label}</div>
+    <div className="rounded-lg border border-line bg-surface p-3 text-center">
+      <div className="font-mono text-2xl font-bold tabular-nums text-ink">
+        {value}
+        {suffix && <span className="text-base text-ink-muted">{suffix}</span>}
+      </div>
+      <div className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{label}</div>
     </div>
   );
 }

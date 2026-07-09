@@ -1,21 +1,42 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
+:root {
+  color-scheme: dark;
 
-  --color-brand-50: #f3fbf3;
-  --color-brand-100: #e1f5e2;
-  --color-brand-200: #c3ebc6;
-  --color-brand-300: #97da9d;
-  --color-brand-400: #63c26d;
-  --color-brand-500: #3fa84c;
-  --color-brand-600: #2f8a3b;
-  --color-brand-700: #276e31;
-  --color-brand-800: #23572b;
-  --color-brand-900: #1e4826;
+  /* FITTAYI dark theme — PRD Section 8.3 (Kerala spice-market / backwater palette) */
+  --bg-base: #12181a;
+  --bg-surface: #1b2422;
+  --bg-surface-raised: #232e2b;
+  --accent-primary: #e8a33d; /* turmeric gold */
+  --accent-secondary: #4f7869; /* cardamom green */
+  --accent-warning: #d96e4c; /* terracotta */
+  --text-primary: #f2efe9;
+  --text-secondary: #9ca8a4;
+  --border-subtle: #2a3532;
 
-  --color-spice-500: #d9622b;
-  --color-spice-600: #bd4f1f;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+}
+
+/* Tailwind v4 theme mapping: alias the PRD tokens to short utility names
+   (bg-base, text-ink, border-line, ...) so components don't hardcode hex. */
+@theme inline {
+  /* Note: NOT named --color-base — that collides with Tailwind core's
+     text-base (font-size) utility class name. */
+  --color-backwater: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-surface-raised: var(--bg-surface-raised);
+  --color-gold: var(--accent-primary);
+  --color-cardamom: var(--accent-secondary);
+  --color-terracotta: var(--accent-warning);
+  --color-ink: var(--text-primary);
+  --color-ink-muted: var(--text-secondary);
+  --color-line: var(--border-subtle);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
 }
 
 html,
@@ -25,6 +46,34 @@ body,
 }
 
 body {
-  font-family: var(--font-sans);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+}
+
+/* Visible focus states on dark surfaces (turmeric gold reads at 6.5:1+
+   against every surface token, so it stays legible everywhere). */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

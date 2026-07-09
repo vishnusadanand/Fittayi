@@ -163,7 +163,34 @@ carbs_kcal = final_target − protein_kcal − fat_kcal  (floor at 0, rebalance 
 
 Full reference implementation: see `calorieEngine.ts` (provided separately).
 
-## 9. MVP Scope (Phase 1 — build this first)
+### 8.3 Dark Theme Design System
+
+FITTAYI's UI runs on a dark theme by default. The palette is built around Kerala's spice-market and backwater visual world rather than a generic near-black + neon-accent look — food and energy should feel warm, not clinical.
+
+**Color tokens:**
+
+| Token | Hex | Usage |
+|---|---|---|
+| `--bg-base` | `#12181A` | App background — deep charcoal with a slight green undertone (backwater black) |
+| `--bg-surface` | `#1B2422` | Cards, quiz panels, dashboard tiles |
+| `--bg-surface-raised` | `#232E2B` | Modals, hover states, elevated elements |
+| `--accent-primary` | `#E8A33D` | Turmeric gold — primary CTAs, active states, protein/energy highlights |
+| `--accent-secondary` | `#4F7869` | Cardamom green — success states, "on track" indicators, secondary actions |
+| `--accent-warning` | `#D96E4C` | Terracotta — floor-clamp warnings, allergen flags, destructive actions |
+| `--text-primary` | `#F2EFE9` | Body copy, headings — warm off-white, not pure white |
+| `--text-secondary` | `#9CA8A4` | Captions, meta text, muted sage-grey |
+| `--border-subtle` | `#2A3532` | Card borders, dividers |
+
+**Typography:** a warm, slightly characterful display face for headings (evoking hand-painted spice-market signage — not a default geometric sans), paired with a clean humanist body face optimized for reading numbers (calories, macros) at a glance. A monospace/tabular-number utility face for the calorie/macro figures themselves keeps stat displays aligned and scannable.
+
+**Design requirements:**
+- All text/background combinations must meet WCAG AA contrast minimums (4.5:1 for body text, 3:1 for large text) — verify `--text-secondary` against `--bg-surface` specifically, as muted-on-dark combinations are the most common contrast failure.
+- Macro/calorie numbers (the core content of the product) should visually lead each card — treat them with the same hierarchy discipline as a headline, not as fine print.
+- The floor-clamp warning state (Section 6.1) uses `--accent-warning` and must remain visually distinct from a normal informational state — this is a safety-relevant UI moment, not a cosmetic one.
+- Respect `prefers-reduced-motion`; keep any transitions purposeful (state changes, not ambient decoration).
+- Maintain visible keyboard focus states in the dark theme — a common miss is focus rings that are too low-contrast against dark surfaces.
+- Mobile-first: verify the palette and type scale hold up at small sizes, since Section 7 notes mobile is the majority-traffic case.
+
 
 **In scope:**
 - Quiz → calorie/macro engine → sample one-day plan (no signup)

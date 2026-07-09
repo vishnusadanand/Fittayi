@@ -3,10 +3,10 @@ import { Disclaimer } from "./Disclaimer";
 
 export function Footer() {
   return (
-    <footer className="border-t border-neutral-200 px-4 py-8 dark:border-neutral-800">
+    <footer className="border-t border-line px-4 py-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-4">
         <Disclaimer />
-        <div className="flex gap-4 text-xs text-neutral-500 dark:text-neutral-400">
+        <div className="flex gap-4 text-xs text-ink-muted">
           <Link to="/privacy" className="hover:underline">
             Privacy Policy
           </Link>

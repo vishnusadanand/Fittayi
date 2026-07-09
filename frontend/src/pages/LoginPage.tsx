@@ -29,7 +29,7 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h2 className="text-xl font-semibold">Log in</h2>
+      <h2 className="font-display text-xl font-semibold">Log in</h2>
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <input
           type="email"
@@ -37,7 +37,7 @@ export function LoginPage() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-lg border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-ink-muted"
         />
         <input
           type="password"
@@ -45,20 +45,20 @@ export function LoginPage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-lg border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-ink-muted"
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-terracotta">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="rounded-full bg-brand-600 px-6 py-2 font-medium text-white disabled:opacity-50"
+          className="rounded-full bg-gold px-6 py-2 font-medium text-backwater hover:brightness-90 disabled:opacity-50"
         >
           {loading ? "Logging in..." : "Log in"}
         </button>
       </form>
-      <p className="mt-4 text-sm text-neutral-500">
+      <p className="mt-4 text-sm text-ink-muted">
         No account yet?{" "}
-        <Link to="/signup" className="text-brand-600 hover:underline">
+        <Link to="/signup" className="text-gold hover:underline">
           Sign up
         </Link>
       </p>

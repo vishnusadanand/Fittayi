@@ -36,12 +36,12 @@ export function SignupPage() {
   if (needsConfirmation) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <h2 className="text-xl font-semibold">Check your email</h2>
-        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
-          We've sent a confirmation link to <strong>{email}</strong>. Click it, then come back and
-          log in to see your plan.
+        <h2 className="font-display text-xl font-semibold">Check your email</h2>
+        <p className="mt-3 text-sm text-ink-muted">
+          We've sent a confirmation link to <strong className="text-ink">{email}</strong>. Click it,
+          then come back and log in to see your plan.
         </p>
-        <Link to="/login" className="mt-6 inline-block text-brand-600 hover:underline">
+        <Link to="/login" className="mt-6 inline-block text-gold hover:underline">
           Go to login
         </Link>
       </div>
@@ -50,7 +50,7 @@ export function SignupPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h2 className="text-xl font-semibold">Create your account</h2>
+      <h2 className="font-display text-xl font-semibold">Create your account</h2>
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <input
           type="email"
@@ -58,7 +58,7 @@ export function SignupPage() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-lg border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-ink-muted"
         />
         <input
           type="password"
@@ -67,20 +67,20 @@ export function SignupPage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-lg border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-ink-muted"
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-terracotta">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="rounded-full bg-brand-600 px-6 py-2 font-medium text-white disabled:opacity-50"
+          className="rounded-full bg-gold px-6 py-2 font-medium text-backwater hover:brightness-90 disabled:opacity-50"
         >
           {loading ? "Creating account..." : "Sign up"}
         </button>
       </form>
-      <p className="mt-4 text-sm text-neutral-500">
+      <p className="mt-4 text-sm text-ink-muted">
         Already have an account?{" "}
-        <Link to="/login" className="text-brand-600 hover:underline">
+        <Link to="/login" className="text-gold hover:underline">
           Log in
         </Link>
       </p>

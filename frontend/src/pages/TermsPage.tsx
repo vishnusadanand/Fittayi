@@ -1,15 +1,15 @@
 export function TermsPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-16">
-      <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+      <div className="mb-6 rounded-lg border border-terracotta bg-terracotta/10 px-4 py-3 text-sm text-ink">
         Placeholder draft — needs legal review before launch. Not final, and not a substitute for
         advice from a qualified lawyer.
       </div>
       <h1 className="text-2xl font-bold">Terms of Service</h1>
 
-      <div className="mt-8 flex flex-col gap-8 text-sm text-neutral-600 dark:text-neutral-300">
+      <div className="mt-8 flex flex-col gap-8 text-sm text-ink-muted">
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">What FITTAYI is</h2>
+          <h2 className="font-display text-base font-semibold text-ink">What FITTAYI is</h2>
           <p className="mt-2">
             FITTAYI provides deterministic, calorie- and macro-based meal plans built from a
             curated Indian dish database. Calorie and macro targets are computed with hard safety
@@ -20,7 +20,7 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">What FITTAYI is not</h2>
+          <h2 className="font-display text-base font-semibold text-ink">What FITTAYI is not</h2>
           <p className="mt-2">
             FITTAYI is not a substitute for professional medical or dietetic advice. It is not a
             clinical nutrition or eating-disorder treatment tool, is not a medical device, and
@@ -31,7 +31,7 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Your responsibility</h2>
+          <h2 className="font-display text-base font-semibold text-ink">Your responsibility</h2>
           <p className="mt-2">
             By creating an account, you agree to use FITTAYI at your own discretion and to consult
             a qualified professional (a doctor or registered dietitian) before making significant
@@ -40,7 +40,7 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Accounts</h2>
+          <h2 className="font-display text-base font-semibold text-ink">Accounts</h2>
           <p className="mt-2">
             You're responsible for keeping your account credentials secure. You may delete your
             account at any time, which deletes your associated profile, plan, and history data.

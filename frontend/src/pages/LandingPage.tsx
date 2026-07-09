@@ -96,18 +96,18 @@ export function LandingPage() {
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-4 py-20 text-center">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Eat Like You Mean It.</h1>
-        <p className="mt-4 text-lg text-neutral-600 dark:text-neutral-300">
+        <p className="mt-4 text-lg text-ink-muted">
           Ten questions. One sharp daily meal plan — calories, macros, real dishes — built around
           your body, your goal, and a Kerala-first kitchen.
         </p>
         <div className="mt-8 flex flex-col items-center gap-2">
           <Link
             to="/quiz"
-            className="rounded-full bg-brand-600 px-8 py-3 text-base font-semibold text-white hover:bg-brand-700"
+            className="rounded-full bg-gold px-8 py-3 text-base font-semibold text-backwater hover:brightness-90"
           >
             Build My Meal Plan
           </Link>
-          <span className="text-xs text-neutral-500">90 seconds &middot; No signup required</span>
+          <span className="text-xs text-ink-muted">90 seconds &middot; No signup required</span>
         </div>
       </section>
 
@@ -118,10 +118,10 @@ export function LandingPage() {
           {PLANS.map((plan) => (
             <div
               key={plan.goal}
-              className="rounded-xl border border-neutral-200 p-5 dark:border-neutral-800"
+              className="rounded-xl border border-line bg-surface p-5"
             >
-              <h3 className="font-semibold">{plan.name}</h3>
-              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{plan.description}</p>
+              <h3 className="font-display font-semibold">{plan.name}</h3>
+              <p className="mt-2 text-sm text-ink-muted">{plan.description}</p>
             </div>
           ))}
         </div>
@@ -133,9 +133,9 @@ export function LandingPage() {
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {METHOD_STEPS.map((step, i) => (
             <div key={step.title}>
-              <span className="text-sm font-semibold text-brand-600">{`0${i + 1}`}</span>
-              <h3 className="mt-1 font-semibold">{step.title}</h3>
-              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{step.description}</p>
+              <span className="font-mono text-sm font-semibold text-gold">{`0${i + 1}`}</span>
+              <h3 className="mt-1 font-display font-semibold">{step.title}</h3>
+              <p className="mt-1 text-sm text-ink-muted">{step.description}</p>
             </div>
           ))}
         </div>
@@ -144,29 +144,36 @@ export function LandingPage() {
       {/* Sample Week */}
       <section className="mx-auto max-w-5xl px-4 py-16">
         <h2 className="text-center text-2xl font-bold">7 Days. Real Plates.</h2>
-        <p className="mt-2 text-center text-sm text-neutral-500">
+        <p className="mt-2 text-center text-sm text-ink-muted">
           {dailyCalories
-            ? `Illustrative example at ~${dailyCalories} kcal/day (moderate activity, cut goal) — real dishes from our catalog, not a personalized plan.`
+            ? <>Illustrative example at ~<span className="font-mono tabular-nums">{dailyCalories}</span> kcal/day (moderate activity, cut goal) — real dishes from our catalog, not a personalized plan.</>
             : "Loading a live example from our dish catalog..."}
         </p>
-        <div className="mt-8 overflow-x-auto">
+        <div className="mt-8 overflow-x-auto rounded-xl border border-line">
           <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 text-left dark:border-neutral-800">
-                <th className="py-2 pr-4">Day</th>
-                <th className="py-2 pr-4">Breakfast</th>
-                <th className="py-2 pr-4">Lunch</th>
-                <th className="py-2 pr-4">Dinner</th>
-                <th className="py-2 pr-4">Snack</th>
+              <tr className="border-b border-line bg-surface text-left">
+                <th className="py-2 pr-4 pl-4 font-display">Day</th>
+                <th className="py-2 pr-4 font-display">Breakfast</th>
+                <th className="py-2 pr-4 font-display">Lunch</th>
+                <th className="py-2 pr-4 font-display">Dinner</th>
+                <th className="py-2 pr-4 font-display">Snack</th>
               </tr>
             </thead>
             <tbody>
               {demoWeek.map((day) => (
-                <tr key={day.day} className="border-b border-neutral-100 dark:border-neutral-900">
-                  <td className="py-2 pr-4 font-medium">{day.day}</td>
+                <tr key={day.day} className="border-b border-line last:border-b-0">
+                  <td className="py-2 pr-4 pl-4 font-medium">{day.day}</td>
                   {day.meals.map((m) => (
-                    <td key={m.slot} className="py-2 pr-4 text-neutral-600 dark:text-neutral-300">
-                      {m.dish ? `${m.dish.name} (${m.dish.calories} kcal)` : "—"}
+                    <td key={m.slot} className="py-2 pr-4 text-ink-muted">
+                      {m.dish ? (
+                        <>
+                          {m.dish.name} (
+                          <span className="font-mono tabular-nums">{m.dish.calories}</span> kcal)
+                        </>
+                      ) : (
+                        "—"
+                      )}
                     </td>
                   ))}
                 </tr>
@@ -179,17 +186,17 @@ export function LandingPage() {
       {/* Dishes / Menu */}
       <section className="mx-auto max-w-5xl px-4 py-16">
         <h2 className="text-center text-2xl font-bold">The Menu.</h2>
-        <p className="mt-2 text-center text-sm text-neutral-500">
+        <p className="mt-2 text-center text-sm text-ink-muted">
           {allDishes.length}+ dishes, Kerala and South Indian first, across every diet type.
         </p>
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {(Object.keys(MEAL_SLOT_LABELS) as MealSlot[]).map((slot) => (
             <div
               key={slot}
-              className="rounded-xl border border-neutral-200 p-5 text-center dark:border-neutral-800"
+              className="rounded-xl border border-line bg-surface p-5 text-center"
             >
-              <div className="text-2xl font-bold text-brand-600">{countsBySlot[slot]}</div>
-              <div className="text-sm text-neutral-600 dark:text-neutral-300">{MEAL_SLOT_LABELS[slot]}</div>
+              <div className="font-mono text-2xl font-bold tabular-nums text-gold">{countsBySlot[slot]}</div>
+              <div className="text-sm text-ink-muted">{MEAL_SLOT_LABELS[slot]}</div>
             </div>
           ))}
         </div>
@@ -198,7 +205,7 @@ export function LandingPage() {
       <section className="mx-auto max-w-3xl px-4 py-16 text-center">
         <Link
           to="/quiz"
-          className="rounded-full bg-brand-600 px-8 py-3 text-base font-semibold text-white hover:bg-brand-700"
+          className="rounded-full bg-gold px-8 py-3 text-base font-semibold text-backwater hover:brightness-90"
         >
           Start The Diagnostic
         </Link>

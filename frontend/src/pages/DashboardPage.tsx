@@ -149,7 +149,7 @@ export function DashboardPage() {
   }
 
   if (loading) {
-    return <p className="mx-auto max-w-5xl px-4 py-16 text-center text-sm text-neutral-500">Loading your plan...</p>;
+    return <p className="mx-auto max-w-5xl px-4 py-16 text-center text-sm text-ink-muted">Loading your plan...</p>;
   }
 
   const days = [...new Set(rows.map((r) => r.plan_date))].sort();
@@ -161,11 +161,11 @@ export function DashboardPage() {
 
       {days.length === 0 ? (
         <div className="mt-8 text-center">
-          <p className="text-sm text-neutral-500">No plan yet.</p>
+          <p className="text-sm text-ink-muted">No plan yet.</p>
           <button
             onClick={handleGenerate}
             disabled={generating}
-            className="mt-4 rounded-full bg-brand-600 px-6 py-2 font-medium text-white disabled:opacity-50"
+            className="mt-4 rounded-full bg-gold px-6 py-2 font-medium text-backwater hover:brightness-90 disabled:opacity-50"
           >
             {generating ? "Generating..." : "Generate my weekly plan"}
           </button>
@@ -174,7 +174,7 @@ export function DashboardPage() {
         <div className="mt-8 flex flex-col gap-8">
           {days.map((day) => (
             <div key={day}>
-              <h2 className="mb-3 font-semibold">
+              <h2 className="mb-3 font-display font-semibold">
                 {new Date(day + "T00:00:00").toLocaleDateString(undefined, {
                   weekday: "long",
                   month: "short",
@@ -189,31 +189,34 @@ export function DashboardPage() {
                     <div
                       key={slot}
                       className={`rounded-lg border p-4 ${
-                        row.eaten_at
-                          ? "border-brand-300 bg-brand-50 dark:border-brand-800 dark:bg-brand-950"
-                          : "border-neutral-200 dark:border-neutral-800"
+                        row.eaten_at ? "border-cardamom bg-cardamom/10" : "border-line bg-surface"
                       }`}
                     >
-                      <p className="text-xs font-semibold uppercase text-neutral-500">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
                         {MEAL_SLOT_LABELS[slot]}
                       </p>
                       <p className="mt-1 font-medium">{row.dish?.name ?? "No match"}</p>
                       {row.dish && (
-                        <p className="text-xs text-neutral-500">
-                          {row.dish.calories} kcal &middot; {row.dish.protein_g}g protein
+                        <p className="mt-1 font-mono text-sm font-semibold tabular-nums text-gold">
+                          {row.dish.calories} kcal{" "}
+                          <span className="font-body text-xs font-normal text-ink-muted">
+                            &middot; {row.dish.protein_g}g protein
+                          </span>
                         </p>
                       )}
                       <div className="mt-3 flex gap-2">
                         <button
                           onClick={() => handleMarkEaten(row)}
-                          className="rounded-full border border-neutral-300 px-3 py-1 text-xs dark:border-neutral-700"
+                          className={`rounded-full border px-3 py-1 text-xs text-ink transition-colors ${
+                            row.eaten_at ? "border-cardamom" : "border-line hover:border-gold"
+                          }`}
                         >
                           {row.eaten_at ? "Eaten ✓" : "Mark eaten"}
                         </button>
                         <button
                           onClick={() => handleSwap(row)}
                           disabled={swappingId === row.id}
-                          className="rounded-full border border-neutral-300 px-3 py-1 text-xs disabled:opacity-50 dark:border-neutral-700"
+                          className="rounded-full border border-line px-3 py-1 text-xs text-ink hover:border-gold disabled:opacity-50"
                         >
                           {swappingId === row.id ? "Swapping..." : "Swap"}
                         </button>
