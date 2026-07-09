@@ -1,6 +1,8 @@
 // FITTAYI dish selection — Edge Function
-// Requires the caller's own JWT (forwarded to Supabase) so user_dish_history
-// RLS scopes the 3-day exclusion to the calling user only, per PRD 6.3.
+// Forwards the caller's JWT to Supabase so user_dish_history RLS scopes the
+// 3-day exclusion to the calling user only, per PRD 6.3. Callable with just
+// the anon key (no signed-in user) for the pre-signup sample plan (PRD 5) —
+// in that case there's no history to exclude, so that step is skipped.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import {
   type CandidateDish,
@@ -100,26 +102,28 @@ Deno.serve(async (req: Request) => {
     global: { headers: { Authorization: authHeader } },
   });
 
+  // A real signed-in user gets their 3-day history excluded (RLS-scoped to
+  // auth.uid()). An anonymous caller (PRD 5: the one-day sample plan works
+  // with no signup) has no persisted history at all, so we just skip that
+  // query rather than rejecting the request outright.
   const {
     data: { user },
-    error: userError,
   } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return jsonResponse({ error: "Invalid or expired session" }, 401);
-  }
 
-  // Exclude dishes served to this user in the last 3 days (RLS-scoped to auth.uid()).
-  const threeDaysAgo = new Date();
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-  const { data: history, error: historyError } = await supabase
-    .from("user_dish_history")
-    .select("dish_id")
-    .gte("served_on", threeDaysAgo.toISOString().slice(0, 10));
+  let excludedIds: string[] = [];
+  if (user) {
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const { data: history, error: historyError } = await supabase
+      .from("user_dish_history")
+      .select("dish_id")
+      .gte("served_on", threeDaysAgo.toISOString().slice(0, 10));
 
-  if (historyError) {
-    return jsonResponse({ error: "Failed to read dish history" }, 500);
+    if (historyError) {
+      return jsonResponse({ error: "Failed to read dish history" }, 500);
+    }
+    excludedIds = (history ?? []).map((row: { dish_id: string }) => row.dish_id);
   }
-  const excludedIds = (history ?? []).map((row: { dish_id: string }) => row.dish_id);
 
   const compatibleTypes = dietCompatibleTypes(dietType);
   const lowerBound = targetCalories * 0.9;
