@@ -21,7 +21,7 @@ type Screen = "setup" | "session" | "complete";
 type Phase = "exercise" | "rest";
 
 export function WorkoutPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   const [screen, setScreen] = useState<Screen>("setup");
@@ -38,6 +38,7 @@ export function WorkoutPage() {
   const [elapsedOnFinish, setElapsedOnFinish] = useState(0);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
       navigate("/login");
       return;
@@ -58,7 +59,7 @@ export function WorkoutPage() {
         .maybeSingle();
       setAlreadyDoneToday(!!completion);
     })();
-  }, [user, navigate]);
+  }, [authLoading, user, navigate]);
 
   function toggleCondition(id: Condition) {
     setConditions((prev) => {

@@ -32,7 +32,7 @@ function fmt(n: number): string {
 }
 
 export function LogMealPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,6 +51,7 @@ export function LogMealPage() {
   const [loggedMessage, setLoggedMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
       navigate("/login");
       return;
@@ -64,7 +65,7 @@ export function LogMealPage() {
         setDishes(rows);
         setDishById(new Map(rows.map((d) => [d.id, d])));
       });
-  }, [user, navigate]);
+  }, [authLoading, user, navigate]);
 
   function handleFile(f: File) {
     setFile(f);
