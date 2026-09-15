@@ -1,8 +1,10 @@
 # FITTAYI — Product Requirements Document
 
-**Version:** 1.0
+**Version:** 1.1
 **Owner:** ViSa
 **Status:** Draft for build handoff (Google Antigravity)
+
+**Changelog:** v1.1 (2026-09-15) — added Photo-Based Meal Logging, Workout/Exercise Module, and Admin Portal to scope (Sections 6.5–6.7); updated Section 9 scope list and Non-Goals accordingly. Reference implementations and architecture notes for all three: `/fittayi-handoff-2026-09-15/` in this repo.
 
 ---
 
@@ -71,6 +73,28 @@ FITTAYI solves this by combining a structured Indian dish database with a determ
 - Privacy policy and terms of service required before any signup collecting health data (DPDP Act, India, applies).
 - Visible disclaimer: "Not a substitute for professional medical or dietetic advice."
 - No fabricated stats or testimonials — display real numbers once available, or omit the section entirely pre-launch.
+
+### 6.5 Photo-Based Meal Logging
+- **Claude does not compute calories from a photo.** Given an uploaded meal photo, the model's only job is to (a) match each visible food item against FITTAYI's own `dishes` table and (b) estimate a portion-size multiplier relative to that dish's standard serving (reasoning from a visible size reference — plate, katori/bowl, spoon, hand, banana leaf). The app then computes final calories/macros deterministically (`stored dish value × multiplier`) server-side, so results are consistent and auditable rather than a fresh AI guess every time a user logs the same dish.
+- The vision prompt's dish vocabulary is generated live from the `dishes` table at request time, not hardcoded, so it never drifts out of sync with the real catalog.
+- If no dish genuinely matches, the item is not forced into a bad match. It gets a rough one-off first-principles estimate instead, and is logged for admin review (Section 6.7) rather than treated as an authoritative log entry.
+- This is a separate concern from the calorie/macro *target*-setting engine in Section 6.1 (`calorieEngine.ts`) — that engine computes what a user *should* eat from BMR/TDEE; photo logging estimates what they *did* eat from a photo. They must not be merged, but both read from the same `dishes` table so a dish's numbers are defined in exactly one place.
+- Schema additions: `dishes.aliases` (`text[]`, catches synonym gaps — e.g. "green chutney" vs "coriander chutney" — before something is wrongly treated as a new dish), a `meal_logs` table for confirmed entries, and an `unmatched_food_events` log table (one row per unmatched item seen, not a mutable counter — admin-side "times flagged" is a `GROUP BY seen_as` aggregate over this log, avoiding counter race conditions under concurrent uploads).
+- Backend: a Supabase Edge Function accepts an uploaded photo (Supabase Storage), builds the prompt from the live `dishes` table, calls the Anthropic API, computes final macros server-side, and returns items for the client to confirm/correct before logging.
+
+### 6.6 Workout Module
+- Bodyweight-only exercises. One routine per goal (fat loss / muscle gain / maintain weight) for v1. 2D CSS/SVG stick-figure animation, not 3D (deferred — production cost not justified to validate the feature).
+- New onboarding question: injury/condition, **multi-select** (a user may have more than one) — options: knee, back, wrist/shoulder, none. Stored on `user_profiles` as `text[]`. Used to substitute individual exercises for safer alternatives; any swap is shown transparently to the user in the session UI, never silent.
+- Tracking for v1 is via a **daily reminder email** (cron-driven) to anyone who hasn't completed that day's circuit — **not** an in-app streak counter or streak UI. The app still records completion (date + user) so the cron job has something to query against, but that data is not surfaced back to the user as a streak in v1.
+- Schema addition: `workout_completions` (user_id, date, and whatever the reminder job needs to query "who's missing today").
+- Backend: `pg_cron` + a Supabase Edge Function that queries `workout_completions` for the day and sends the reminder via the chosen email provider (open question — see Section 12).
+
+### 6.7 Admin Portal
+- Four sections: Dashboard (KPIs), Users, Dish database, Review queue.
+- Gated server-side via Postgres RLS on an `is_admin`/role column on `user_profiles` — never a frontend-only check. The UI may optimistically attempt a write and handle an RLS rejection in the response (simpler than a separate pre-check), but the enforcement itself must live in the database policy.
+- Dish database tab: standard CRUD against `dishes`, including the new `aliases` column.
+- Review queue tab: unmatched photo-logging items (Section 6.5), ranked by how often each has been seen (aggregated from `unmatched_food_events`). Core workflow: pick the highest-flagged item, pre-fill a dish form with its rough estimate, let an admin correct the numbers, save it to `dishes`, mark the underlying events resolved. This is the intended mechanism for growing the dish catalog over time from real user photos, not just the manual seeding process in Section 6.2.
+- Users tab: view/edit a user's profile fields (`user_profiles` — height, weight, body_fat_pct, goal, diet_type, injury conditions). Goal and diet_type must reflect the real enums (`cut`/`cut_aggressive`/`maintain`/`build`/`recomp` and `veg`/`vegan`/`egg`/`non_veg`), not display-only labels.
 
 ## 7. Non-Functional Requirements
 
@@ -192,6 +216,8 @@ FITTAYI's UI runs on a dark theme by default. The palette is built around Kerala
 - Mobile-first: verify the palette and type scale hold up at small sizes, since Section 7 notes mobile is the majority-traffic case.
 
 
+## 9. Scope (MVP v1.1)
+
 **In scope:**
 - Quiz → calorie/macro engine → sample one-day plan (no signup)
 - Signup/login
@@ -199,6 +225,9 @@ FITTAYI's UI runs on a dark theme by default. The palette is built around Kerala
 - Weekly plan generation + dish swap
 - Basic dashboard (view plan, mark meals as eaten)
 - Privacy policy, terms, medical disclaimer
+- Photo-based meal logging: dish-matching + portion-estimate vision flow, confirmation/correction screen, unmatched-item review queue (Section 6.5)
+- Workout module: bodyweight circuit, injury-based exercise substitution, daily reminder email (Section 6.6)
+- Admin portal: dashboard, users, dish database, review queue, RLS-gated (Section 6.7)
 
 Note: because the 150+ dish requirement is data-entry-heavy and accuracy-sensitive, plan for it to run in parallel with Phase 1–2 engineering work (see build prompt) rather than serially blocking the whole timeline.
 
@@ -209,11 +238,14 @@ Note: because the 150+ dish requirement is data-entry-heavy and accuracy-sensiti
 - Barcode scanning / packaged food logging
 - Integration with fitness trackers/wearables
 - Multi-language support (English only at launch)
+- In-app workout streak UI (v1 tracks completion server-side for the reminder email only — see Section 6.6)
+- 3D exercise animation (2D stick-figure only for v1 — see Section 6.6)
 
 ## 10. Non-Goals
 
 - FITTAYI is not a clinical nutrition or eating-disorder treatment tool. It should not accept users who indicate a diagnosed eating disorder into the standard flow — this needs a defined handling path (at minimum: don't generate a restrictive plan, direct to professional resources).
 - Not a medical device; makes no diagnostic claims.
+- Photo-based logging is an estimate, not a lab measurement, and is presented to users as such — it is not a substitute for the deterministic plan-generation engine in Section 6.1, and the two must never be merged into one calorie computation path.
 
 ## 11. Success Metrics (post-launch)
 
@@ -228,3 +260,6 @@ Note: because the 150+ dish requirement is data-entry-heavy and accuracy-sensiti
 - Monetization model and timing
 - How to handle users who indicate a diagnosed eating disorder or are under 18
 - Exact backend hosting decision (standalone Supabase vs. Lovable Cloud-equivalent) — left to Antigravity's recommendation at build time; revisit if it conflicts with self-hosting/ownership preferences later
+- Which email provider sends the daily workout reminder (Section 6.6)
+- Photo-matching prompt strategy at real catalog size: the reference implementations vocabulary-list every dish (fine at ~15); the live `dishes` table has 210+. Send the full catalog as prompt context every request, or pre-filter (e.g. by meal type / time of day) first? Affects both per-request cost and match accuracy — needs a decision before the Edge Function's prompt-construction logic is finalized.
+- Timezone boundary for "today" in the workout reminder cron and completion tracking (IST, given Kerala-first launch, is the working assumption — not yet explicitly confirmed)

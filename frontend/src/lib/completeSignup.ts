@@ -31,6 +31,7 @@ export async function completeSignupIfPending(): Promise<void> {
       diet_type: answers.dietType,
       allergens: answers.allergens,
       cuisine_region_pref: answers.cuisineRegionPref,
+      conditions: answers.conditions,
     },
     { onConflict: "user_id" }
   );

@@ -1,0 +1,914 @@
+<title>Plate Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #10160f;
+    --bg-raise: #171f16;
+    --surface: #1c251b;
+    --surface-border: rgba(230, 228, 214, 0.10);
+    --text: #f2efe4;
+    --text-muted: #a9b3a4;
+    --text-faint: #6f7a6a;
+    --gold: #e4a930;
+    --gold-soft: rgba(228, 169, 48, 0.16);
+    --green: #5c9172;
+    --green-soft: rgba(92, 145, 114, 0.16);
+    --chili: #c0524a;
+    --chili-soft: rgba(192, 82, 74, 0.16);
+    --focus: #e4a930;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f7f4ea;
+      --bg-raise: #efeadb;
+      --surface: #ffffff;
+      --surface-border: rgba(29, 33, 23, 0.10);
+      --text: #1c2418;
+      --text-muted: #55604f;
+      --text-faint: #8b9483;
+      --gold: #a9761c;
+      --gold-soft: rgba(169, 118, 28, 0.12);
+      --green: #3f6b52;
+      --green-soft: rgba(63, 107, 82, 0.12);
+      --chili: #a3392f;
+      --chili-soft: rgba(163, 57, 47, 0.10);
+      --focus: #a9761c;
+    }
+  }
+
+  :root[data-theme="light"] {
+    --bg: #f7f4ea;
+    --bg-raise: #efeadb;
+    --surface: #ffffff;
+    --surface-border: rgba(29, 33, 23, 0.10);
+    --text: #1c2418;
+    --text-muted: #55604f;
+    --text-faint: #8b9483;
+    --gold: #a9761c;
+    --gold-soft: rgba(169, 118, 28, 0.12);
+    --green: #3f6b52;
+    --green-soft: rgba(63, 107, 82, 0.12);
+    --chili: #a3392f;
+    --chili-soft: rgba(163, 57, 47, 0.10);
+    --focus: #a9761c;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline: 20px;
+    padding-block: 40px;
+    display: flex;
+    justify-content: center;
+  }
+
+  main {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(1.7rem, 5vw, 2.15rem);
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .lede {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .lede strong { color: var(--text); font-weight: 600; }
+
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .card-title {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+
+  .card-sub {
+    font-size: 0.82rem;
+    color: var(--text-faint);
+    margin: 0 0 16px;
+    line-height: 1.5;
+  }
+
+  .upload-zone {
+    border: 1.5px dashed var(--surface-border);
+    border-radius: 12px;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    background: var(--bg-raise);
+  }
+
+  .upload-zone:hover, .upload-zone:focus-visible {
+    border-color: var(--gold);
+    background: var(--gold-soft);
+  }
+
+  .upload-zone:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .upload-zone svg { width: 30px; height: 30px; stroke: var(--gold); flex-shrink: 0; }
+
+  .upload-zone .primary { font-weight: 500; font-size: 0.95rem; }
+  .upload-zone .secondary { font-size: 0.8rem; color: var(--text-faint); }
+
+  input[type="file"] { display: none; }
+
+  .preview-row {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .preview-row img {
+    width: 84px;
+    height: 84px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--surface-border);
+  }
+
+  .preview-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .preview-meta .fname {
+    font-size: 0.88rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .preview-meta .fmeta { font-size: 0.78rem; color: var(--text-faint); }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  button {
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 9px;
+    padding: 11px 18px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+
+  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-primary { background: var(--gold); color: #201603; }
+  .btn-primary:hover:not(:disabled) { opacity: 0.88; }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--surface-border);
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover:not(:disabled) { border-color: var(--text-faint); color: var(--text); }
+
+  .status-line {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 1.2em;
+  }
+
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold);
+    animation: pulse 1.1s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+
+  .banner {
+    font-size: 0.82rem;
+    border-radius: 9px;
+    padding: 10px 14px;
+    border: 1px solid;
+    line-height: 1.5;
+  }
+  .banner.info { color: var(--text-muted); background: var(--bg-raise); border-color: var(--surface-border); }
+  .banner.error { color: var(--chili); background: var(--chili-soft); border-color: var(--chili); }
+  .banner.sample { color: var(--gold); background: var(--gold-soft); border-color: var(--gold); }
+  .banner.success { color: var(--green); background: var(--green-soft); border-color: var(--green); }
+
+  .results-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+
+  .results-head h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .confidence-chip {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .confidence-high { background: var(--green-soft); color: var(--green); }
+  .confidence-medium { background: var(--gold-soft); color: var(--gold); }
+  .confidence-low { background: var(--chili-soft); color: var(--chili); }
+
+  .source-chip {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+    border: 1px solid var(--surface-border);
+    color: var(--text-faint);
+  }
+  .source-chip.matched { color: var(--green); border-color: color-mix(in srgb, var(--green) 40%, transparent); }
+  .source-chip.unmatched { color: var(--chili); border-color: color-mix(in srgb, var(--chili) 40%, transparent); }
+
+  .totals-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-block: 16px;
+  }
+
+  .stat {
+    background: var(--bg-raise);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat .val {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .stat .lbl {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+  }
+
+  .dish-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .dish {
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dish-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .dish-chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .dish-seen { font-size: 0.76rem; color: var(--text-faint); }
+
+  .dish-select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--bg-raise);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .dish-select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+  .portion-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .portion-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--gold);
+  }
+
+  .portion-row input[type="range"]:disabled { opacity: 0.4; }
+
+  .portion-readout {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    min-width: 3.6em;
+    text-align: right;
+  }
+
+  .portion-unit { font-size: 0.74rem; color: var(--text-faint); }
+
+  .dish-macros {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dish-macros b { color: var(--text); font-weight: 600; }
+
+  .dish-reference {
+    font-size: 0.74rem;
+    color: var(--text-faint);
+    font-style: italic;
+  }
+
+  .notes-block {
+    margin-top: 4px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .notes-block .notes-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    margin-bottom: 4px;
+  }
+
+  .log-row { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+
+  footer {
+    font-size: 0.76rem;
+    color: var(--text-faint);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 460px) {
+    .totals-row { grid-template-columns: repeat(3, 1fr); }
+    .dish-top { flex-direction: column; }
+    .dish-chips { justify-content: flex-start; }
+  }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">Fittayi &middot; prototype v2</div>
+    <h1>Plate Check</h1>
+    <p class="lede">Claude only identifies each dish and judges its portion size against your Fittayi dish database &mdash; the calories come from a deterministic lookup, not a guess. <strong>Nothing is logged until you confirm it below</strong>, and every number stays editable.</p>
+  </header>
+
+  <section class="card" id="upload-card">
+    <p class="card-title">1. Add a photo</p>
+    <div class="upload-zone" id="upload-zone" tabindex="0" role="button" aria-label="Choose a meal photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5V6a2 2 0 0 1 2-2h3.5l1.5 2h5a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><circle cx="12" cy="11.5" r="3.2"/></svg>
+      <div class="primary">Drop a meal photo, or click to choose one</div>
+      <div class="secondary" id="accept-hint">JPEG, PNG, WebP, GIF</div>
+    </div>
+    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif">
+
+    <div id="preview-area" hidden style="margin-top:14px;">
+      <div class="preview-row">
+        <img id="preview-img" alt="Selected meal photo preview">
+        <div class="preview-meta">
+          <div class="fname" id="preview-name"></div>
+          <div class="fmeta" id="preview-size"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn-primary" id="analyze-btn" disabled>Analyze plate</button>
+      <button class="btn-ghost" id="example-btn">Load example analysis</button>
+      <button class="btn-ghost" id="reset-btn" hidden>Choose another photo</button>
+    </div>
+
+    <div class="status-line" id="status-line"></div>
+    <div id="banner-area"></div>
+  </section>
+
+  <section class="card" id="results-card" hidden>
+    <div class="results-head">
+      <div>
+        <p class="card-title" id="results-title" style="margin-bottom:0;">Confirm your meal</p>
+        <p class="card-sub" id="results-sub" style="margin-bottom:0;">Matched items pull real numbers from the dish database below &mdash; drag to correct the portion. Unmatched items use a rough one-off estimate.</p>
+      </div>
+      <span class="confidence-chip confidence-medium" id="overall-chip">Medium confidence</span>
+    </div>
+
+    <div class="totals-row" id="totals-row">
+      <div class="stat"><span class="val" id="t-cal">0</span><span class="lbl">kcal</span></div>
+      <div class="stat"><span class="val" id="t-protein">0g</span><span class="lbl">protein</span></div>
+      <div class="stat"><span class="val" id="t-carbs">0g</span><span class="lbl">carbs</span></div>
+      <div class="stat"><span class="val" id="t-fat">0g</span><span class="lbl">fat</span></div>
+      <div class="stat"><span class="val" id="t-fiber">0g</span><span class="lbl">fiber</span></div>
+    </div>
+
+    <div class="dish-list" id="dish-list"></div>
+
+    <div class="notes-block" id="notes-block" hidden>
+      <div class="notes-title">Notes</div>
+      <p id="notes-text" style="margin:0;"></p>
+    </div>
+
+    <div class="log-row">
+      <div class="btn-row">
+        <button class="btn-primary" id="log-btn">Log this meal</button>
+        <button class="btn-ghost" id="log-reset-btn">Start over</button>
+      </div>
+      <div id="log-banner-area"></div>
+    </div>
+  </section>
+
+  <footer>Matched items: calories come from Fittayi's dish table, scaled by the portion you confirm. Unmatched items are flagged for the dish database to grow into. Nothing you upload here is saved.</footer>
+</main>
+
+<script>
+(function () {
+  // ---- Stand-in for Fittayi's real Postgres dish table ------------------
+  // In the app, this is a query against the dishes table; here it's a small
+  // fixed list so the matching + deterministic-math flow can be demoed end
+  // to end. id must stay stable — it's what the model is asked to return.
+  var DISH_DB = [
+    { id: 'idli', name: 'Idli', unit: '1 medium (~40g)', cal: 58, protein: 2, carbs: 12, fat: 0.1, fiber: 0.5 },
+    { id: 'dosa_plain', name: 'Plain dosa', unit: '1 medium', cal: 133, protein: 2.7, carbs: 18, fat: 5, fiber: 1 },
+    { id: 'dosa_masala', name: 'Masala dosa', unit: '1, with potato filling', cal: 250, protein: 5, carbs: 35, fat: 10, fiber: 3 },
+    { id: 'sambar', name: 'Sambar', unit: '1 cup (240ml)', cal: 150, protein: 7, carbs: 22, fat: 4, fiber: 5 },
+    { id: 'rasam', name: 'Rasam', unit: '1 cup (240ml)', cal: 60, protein: 2, carbs: 10, fat: 1.5, fiber: 1 },
+    { id: 'coconut_chutney', name: 'Coconut chutney', unit: '2 tbsp (30g)', cal: 70, protein: 1, carbs: 3, fat: 6, fiber: 2 },
+    { id: 'rice', name: 'Steamed rice', unit: '1 cup cooked (150g)', cal: 200, protein: 4, carbs: 45, fat: 0.4, fiber: 0.6 },
+    { id: 'fish_curry', name: 'Kerala fish curry', unit: '1 serving (~150g)', cal: 220, protein: 20, carbs: 6, fat: 13, fiber: 1 },
+    { id: 'chicken_curry', name: 'Chicken curry', unit: '1 serving (~150g)', cal: 260, protein: 22, carbs: 7, fat: 16, fiber: 1 },
+    { id: 'beef_curry', name: 'Kerala beef curry', unit: '1 serving (~150g)', cal: 280, protein: 24, carbs: 6, fat: 18, fiber: 1 },
+    { id: 'thoran', name: 'Thoran', unit: '1/2 cup (75g)', cal: 90, protein: 2, carbs: 8, fat: 6, fiber: 3 },
+    { id: 'avial', name: 'Avial', unit: '1/2 cup (100g)', cal: 120, protein: 3, carbs: 12, fat: 7, fiber: 3 },
+    { id: 'appam', name: 'Appam', unit: '1 piece', cal: 120, protein: 2, carbs: 22, fat: 3, fiber: 0.5 },
+    { id: 'puttu', name: 'Puttu', unit: '1 cylinder (100g)', cal: 170, protein: 3, carbs: 36, fat: 1, fiber: 2 },
+    { id: 'parotta', name: 'Parotta', unit: '1 piece (60g)', cal: 260, protein: 5, carbs: 35, fat: 11, fiber: 1.5 },
+  ];
+  var DISH_BY_ID = {};
+  DISH_DB.forEach(function (d) { DISH_BY_ID[d.id] = d; });
+
+  var uploadZone = document.getElementById('upload-zone');
+  var fileInput = document.getElementById('file-input');
+  var acceptHint = document.getElementById('accept-hint');
+  var previewArea = document.getElementById('preview-area');
+  var previewImg = document.getElementById('preview-img');
+  var previewName = document.getElementById('preview-name');
+  var previewSize = document.getElementById('preview-size');
+  var analyzeBtn = document.getElementById('analyze-btn');
+  var exampleBtn = document.getElementById('example-btn');
+  var resetBtn = document.getElementById('reset-btn');
+  var statusLine = document.getElementById('status-line');
+  var bannerArea = document.getElementById('banner-area');
+  var resultsCard = document.getElementById('results-card');
+  var resultsSub = document.getElementById('results-sub');
+  var overallChip = document.getElementById('overall-chip');
+  var dishList = document.getElementById('dish-list');
+  var notesBlock = document.getElementById('notes-block');
+  var notesText = document.getElementById('notes-text');
+  var tCal = document.getElementById('t-cal');
+  var tProtein = document.getElementById('t-protein');
+  var tCarbs = document.getElementById('t-carbs');
+  var tFat = document.getElementById('t-fat');
+  var tFiber = document.getElementById('t-fiber');
+  var logBtn = document.getElementById('log-btn');
+  var logResetBtn = document.getElementById('log-reset-btn');
+  var logBannerArea = document.getElementById('log-banner-area');
+
+  var selectedFile = null;
+  var sample = null;
+  var ctl = null;
+  var canAnalyze = false;
+  var items = []; // working confirmation state
+
+  var vocabLines = DISH_DB.map(function (d) {
+    return '- id "' + d.id + '": ' + d.name + ', standard serving = ' + d.unit;
+  }).join('\n');
+
+  var PROMPT = 'You are a nutrition-logging assistant inside a fitness app with a Kerala-first Indian user base. '
+    + 'Do NOT calculate calories yourself for known dishes — your job is to identify each food item and judge its '
+    + 'portion size, so the app can look up real numbers from its own dish database.\n\n'
+    + 'DISH DATABASE (match against these first):\n' + vocabLines + '\n\n'
+    + 'You are shown one photo of a meal. For each distinct food item visible:\n'
+    + '1. Try to match it to one dish id above. Use matched_dish_id for that id, or null if nothing above genuinely fits '
+    + '(don\'t force a bad match — a wrong match is worse than "no match").\n'
+    + '2. If matched, estimate portion_multiplier: how the visible amount compares to that dish\'s standard serving '
+    + '(1.0 = standard serving, 0.5 = half, 2 = double). Look for a real-world size reference in the photo (a steel '
+    + 'plate ~26-28cm, a katori/bowl ~150-300ml, a spoon, a hand, a banana leaf) and name it in reference_used.\n'
+    + '3. If NOT matched, leave portion_multiplier null and instead fill unmatched_estimate with your own '
+    + 'first-principles calorie/macro guess for the amount visible (this is a rough fallback, not a database lookup).\n'
+    + '4. Give seen_as: a short human description of what you saw (e.g. "3 medium idlis", "small bowl of green chutney powder").\n'
+    + '5. Rate confidence high/medium/low per item — be honest: low when the photo is unclear, portion is hard to judge, '
+    + 'items are stacked/mixed, or a condiment bowl\'s eaten amount is unpredictable.\n'
+    + '6. Never refuse to estimate.\n\n'
+    + 'Reply with ONLY a JSON object, no markdown fences, no text outside the JSON, matching exactly:\n'
+    + '{\n'
+    + '  "items": [\n'
+    + '    {"matched_dish_id": string|null, "seen_as": string, "portion_multiplier": number|null, '
+    + '"reference_used": string, "confidence": "high"|"medium"|"low", '
+    + '"unmatched_estimate": {"calories": number, "protein_g": number, "carbs_g": number, "fat_g": number, "fiber_g": number}|null}\n'
+    + '  ],\n'
+    + '  "overall_confidence": "high"|"medium"|"low",\n'
+    + '  "notes": string\n'
+    + '}';
+
+  var EXAMPLE_RESULT = {
+    items: [
+      { matched_dish_id: 'idli', seen_as: '3 medium idlis', portion_multiplier: 3, reference_used: 'sized against the katori bowls beside them', confidence: 'high', unmatched_estimate: null },
+      { matched_dish_id: 'dosa_plain', seen_as: '1 folded plain dosa', portion_multiplier: 1, reference_used: 'plate width', confidence: 'high', unmatched_estimate: null },
+      { matched_dish_id: 'sambar', seen_as: 'small bowl of mixed-vegetable sambar', portion_multiplier: 0.6, reference_used: 'bowl looks about 60% of a standard cup', confidence: 'medium', unmatched_estimate: null },
+      { matched_dish_id: 'coconut_chutney', seen_as: 'small bowl of coconut chutney', portion_multiplier: 0.9, reference_used: 'bowl size, though side bowls are rarely finished', confidence: 'low', unmatched_estimate: null },
+      { matched_dish_id: null, seen_as: 'small bowl of green herb/curry-leaf chutney powder (podi)', portion_multiplier: null, reference_used: 'bowl size only, recipe unclear', confidence: 'low', unmatched_estimate: { calories: 45, protein_g: 1, carbs_g: 3, fat_g: 3, fiber_g: 1 } },
+    ],
+    overall_confidence: 'medium',
+    notes: 'The green chutney powder isn’t in the dish database yet, so it’s using a rough one-off estimate — a good candidate to add next.',
+  };
+
+  function setStatus(text, thinking) {
+    statusLine.innerHTML = '';
+    if (thinking) {
+      var dot = document.createElement('span');
+      dot.className = 'dot';
+      statusLine.appendChild(dot);
+    }
+    if (text) statusLine.appendChild(document.createTextNode(text));
+  }
+
+  function showBanner(target, kind, text) {
+    target.innerHTML = '';
+    if (!text) return;
+    var div = document.createElement('div');
+    div.className = 'banner ' + kind;
+    div.textContent = text;
+    target.appendChild(div);
+  }
+
+  function fmt(n) {
+    if (typeof n !== 'number' || !isFinite(n)) return '–';
+    return Math.round(n);
+  }
+
+  function confidenceClass(level) {
+    if (level === 'high') return 'confidence-high';
+    if (level === 'low') return 'confidence-low';
+    return 'confidence-medium';
+  }
+
+  // ---- Deterministic math: this is the part that never asks Claude ------
+  function computeItemMacros(item) {
+    if (item.matchedDishId && DISH_BY_ID[item.matchedDishId]) {
+      var d = DISH_BY_ID[item.matchedDishId];
+      var m = item.multiplier;
+      return { calories: d.cal * m, protein_g: d.protein * m, carbs_g: d.carbs * m, fat_g: d.fat * m, fiber_g: d.fiber * m };
+    }
+    return item.unmatchedEstimate || { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0 };
+  }
+
+  function recomputeTotals() {
+    var t = { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0 };
+    items.forEach(function (item) {
+      var m = computeItemMacros(item);
+      t.calories += m.calories; t.protein_g += m.protein_g; t.carbs_g += m.carbs_g; t.fat_g += m.fat_g; t.fiber_g += m.fiber_g;
+    });
+    tCal.textContent = fmt(t.calories);
+    tProtein.textContent = fmt(t.protein_g) + 'g';
+    tCarbs.textContent = fmt(t.carbs_g) + 'g';
+    tFat.textContent = fmt(t.fat_g) + 'g';
+    tFiber.textContent = fmt(t.fiber_g) + 'g';
+  }
+
+  function buildDishSelect(item) {
+    var sel = document.createElement('select');
+    sel.className = 'dish-select';
+    var unmatchedOpt = document.createElement('option');
+    unmatchedOpt.value = '__unmatched__';
+    unmatchedOpt.textContent = 'Not in database — "' + item.seenAs + '"';
+    sel.appendChild(unmatchedOpt);
+    DISH_DB.forEach(function (d) {
+      var opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = d.name + ' (' + d.unit + ')';
+      sel.appendChild(opt);
+    });
+    sel.value = item.matchedDishId || '__unmatched__';
+    return sel;
+  }
+
+  function renderItems() {
+    dishList.innerHTML = '';
+    items.forEach(function (item, idx) {
+      var el = document.createElement('div');
+      el.className = 'dish';
+
+      var top = document.createElement('div');
+      top.className = 'dish-top';
+
+      var seen = document.createElement('div');
+      seen.className = 'dish-seen';
+      seen.textContent = '"' + item.seenAs + '"';
+
+      var chips = document.createElement('div');
+      chips.className = 'dish-chips';
+      var srcChip = document.createElement('span');
+      srcChip.className = 'source-chip ' + (item.matchedDishId ? 'matched' : 'unmatched');
+      srcChip.textContent = item.matchedDishId ? 'DB match' : 'Not verified';
+      var confChip = document.createElement('span');
+      confChip.className = 'confidence-chip ' + confidenceClass(item.confidence);
+      confChip.textContent = item.confidence.charAt(0).toUpperCase() + item.confidence.slice(1);
+      chips.appendChild(srcChip);
+      chips.appendChild(confChip);
+
+      top.appendChild(seen);
+      top.appendChild(chips);
+
+      var select = buildDishSelect(item);
+      select.addEventListener('change', function () {
+        var val = select.value;
+        if (val === '__unmatched__') {
+          item.matchedDishId = null;
+        } else {
+          item.matchedDishId = val;
+          if (item.multiplier == null) item.multiplier = 1;
+        }
+        renderItems();
+        recomputeTotals();
+      });
+
+      var portionRow = document.createElement('div');
+      portionRow.className = 'portion-row';
+      var range = document.createElement('input');
+      range.type = 'range';
+      range.min = '0.25'; range.max = '3'; range.step = '0.05';
+      range.value = String(item.matchedDishId ? item.multiplier : 1);
+      range.disabled = !item.matchedDishId;
+      var readout = document.createElement('span');
+      readout.className = 'portion-readout';
+      readout.textContent = item.matchedDishId ? (Number(range.value).toFixed(2) + '×') : '—';
+      range.addEventListener('input', function () {
+        item.multiplier = parseFloat(range.value);
+        readout.textContent = item.multiplier.toFixed(2) + '×';
+        updateMacrosLine();
+        recomputeTotals();
+      });
+      var unit = document.createElement('span');
+      unit.className = 'portion-unit';
+      unit.textContent = item.matchedDishId ? ('of ' + DISH_BY_ID[item.matchedDishId].unit) : 'not applicable';
+      portionRow.appendChild(range);
+      portionRow.appendChild(readout);
+      portionRow.appendChild(unit);
+
+      var macrosLine = document.createElement('div');
+      macrosLine.className = 'dish-macros';
+      function updateMacrosLine() {
+        var m = computeItemMacros(item);
+        macrosLine.innerHTML = '<span><b>' + fmt(m.calories) + '</b> kcal</span>'
+          + '<span><b>' + fmt(m.protein_g) + '</b>g protein</span>'
+          + '<span><b>' + fmt(m.carbs_g) + '</b>g carbs</span>'
+          + '<span><b>' + fmt(m.fat_g) + '</b>g fat</span>'
+          + '<span><b>' + fmt(m.fiber_g) + '</b>g fiber</span>';
+      }
+      updateMacrosLine();
+
+      var refLine = document.createElement('div');
+      refLine.className = 'dish-reference';
+      refLine.textContent = item.referenceUsed ? ('Reference: ' + item.referenceUsed) : '';
+
+      el.appendChild(top);
+      el.appendChild(select);
+      el.appendChild(portionRow);
+      el.appendChild(macrosLine);
+      if (item.referenceUsed) el.appendChild(refLine);
+      dishList.appendChild(el);
+    });
+  }
+
+  function loadResult(data, sourceLabel) {
+    items = (data.items || []).map(function (raw) {
+      var matchedDishId = raw.matched_dish_id && DISH_BY_ID[raw.matched_dish_id] ? raw.matched_dish_id : null;
+      return {
+        matchedDishId: matchedDishId,
+        seenAs: raw.seen_as || 'Unnamed item',
+        multiplier: matchedDishId ? (typeof raw.portion_multiplier === 'number' ? raw.portion_multiplier : 1) : null,
+        referenceUsed: raw.reference_used || '',
+        confidence: (raw.confidence || 'medium').toLowerCase(),
+        unmatchedEstimate: raw.unmatched_estimate || null,
+      };
+    });
+
+    var overall = (data.overall_confidence || 'medium').toLowerCase();
+    overallChip.textContent = overall.charAt(0).toUpperCase() + overall.slice(1) + ' confidence';
+    overallChip.className = 'confidence-chip ' + confidenceClass(overall);
+    resultsSub.textContent = sourceLabel + ' — matched items pull real numbers from the dish database; drag to correct the portion.';
+
+    notesBlock.hidden = !data.notes;
+    notesText.textContent = data.notes || '';
+
+    resultsCard.hidden = false;
+    logBannerArea.innerHTML = '';
+    renderItems();
+    recomputeTotals();
+    resultsCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function resetToPicker() {
+    selectedFile = null;
+    fileInput.value = '';
+    previewArea.hidden = true;
+    analyzeBtn.disabled = true;
+    resetBtn.hidden = true;
+    setStatus('');
+    showBanner(bannerArea, '', '');
+  }
+
+  uploadZone.addEventListener('click', function () { fileInput.click(); });
+  uploadZone.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+  });
+  uploadZone.addEventListener('dragover', function (e) { e.preventDefault(); });
+  uploadZone.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  fileInput.addEventListener('change', function () {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+  });
+
+  function handleFile(file) {
+    selectedFile = file;
+    var url = URL.createObjectURL(file);
+    previewImg.src = url;
+    previewName.textContent = file.name;
+    previewSize.textContent = (file.size / 1024 / 1024).toFixed(1) + ' MB';
+    previewArea.hidden = false;
+    analyzeBtn.disabled = !canAnalyze;
+    resetBtn.hidden = false;
+    if (!canAnalyze) {
+      showBanner(bannerArea, 'info', 'Photo selected. Analyzing isn’t available in this view right now (see note above) — try "Load example analysis" to see how confirmation works instead.');
+    } else {
+      showBanner(bannerArea, '', '');
+    }
+  }
+
+  resetBtn.addEventListener('click', resetToPicker);
+
+  exampleBtn.addEventListener('click', function () {
+    loadResult(EXAMPLE_RESULT, 'Example analysis');
+  });
+
+  logBtn.addEventListener('click', function () {
+    var calText = tCal.textContent;
+    showBanner(logBannerArea, 'success', 'Logged: ' + calText + ' kcal for this meal. (Prototype only — nothing is actually saved.)');
+  });
+
+  logResetBtn.addEventListener('click', function () {
+    resultsCard.hidden = true;
+    resetToPicker();
+  });
+
+  analyzeBtn.addEventListener('click', async function () {
+    if (!selectedFile || !sample || !canAnalyze) return;
+    analyzeBtn.disabled = true;
+    showBanner(bannerArea, '', '');
+    setStatus('Reading the plate…', true);
+    ctl = new AbortController();
+
+    try {
+      var data = await sample.json(PROMPT, {
+        images: selectedFile,
+        modelTier: 'complex',
+        cache: false,
+        signal: ctl.signal,
+        onText: function () { setStatus('Matching against the dish database…', true); },
+      });
+      loadResult(data, 'Your plate');
+      setStatus('Done.');
+    } catch (e) {
+      var copy = {
+        not_granted: 'You declined access, or this artifact isn’t allowed to use Claude here.',
+        images_unavailable: 'This view can’t send images to Claude.',
+        image_rejected: 'That file couldn’t be used — try a JPEG, PNG, WebP, or GIF under 20MB.',
+        rate_limited: 'Too many requests right now — wait a moment and try again.',
+        session_expired: 'Please sign in again and retry.',
+        refused: 'Claude declined to analyze this image. Try a different photo.',
+        empty_completion: 'No result came back — try again with a clearer photo.',
+        invalid_json: 'The result didn’t parse cleanly — try again.',
+        sampling_disabled: 'Claude isn’t available for this account right now.',
+        cancelled: 'Cancelled.',
+      };
+      setStatus('');
+      if (e && e.code !== 'cancelled') {
+        showBanner(bannerArea, 'error', copy[e.code] || ('Something went wrong (' + (e && e.code) + '). Try again.'));
+      }
+    } finally {
+      analyzeBtn.disabled = !(selectedFile && canAnalyze);
+    }
+  });
+
+  // Selecting/previewing a photo never depends on the sample capability —
+  // only "Analyze plate" does. This runs in the background and only ever
+  // affects the Analyze button and its explanatory banner.
+  (async function init() {
+    try {
+      sample = await claude.use('sample');
+    } catch (_) { sample = null; }
+
+    if (!sample) {
+      showBanner(bannerArea, 'info', 'Analyzing needs this page opened from inside Claude with the sampling capability granted. "Load example analysis" below works regardless — it shows the confirmation flow with realistic sample output.');
+      return;
+    }
+
+    try {
+      var caps = await sample.limits();
+      if (!caps.images) {
+        showBanner(bannerArea, 'info', 'This view can’t send photos to Claude yet, so live analysis is unavailable here — "Load example analysis" below shows the confirmation flow with realistic sample output.');
+        return;
+      }
+      if (caps.images.mediaTypes && caps.images.mediaTypes.length) {
+        fileInput.accept = caps.images.mediaTypes.join(',');
+        acceptHint.textContent = caps.images.mediaTypes.map(function (t) { return t.split('/')[1].toUpperCase(); }).join(', ');
+      }
+      canAnalyze = true;
+      if (selectedFile) analyzeBtn.disabled = false;
+    } catch (_) { /* limits check is best-effort; leave canAnalyze false */ }
+  })();
+})();
+</script>
