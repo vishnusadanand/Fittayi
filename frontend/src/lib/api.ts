@@ -63,6 +63,13 @@ export function analyzeMealPhoto(storagePath: string): Promise<MealPhotoAnalysis
   return callFunction<MealPhotoAnalysisResponse>("photo-analysis", { storagePath });
 }
 
+const EXT_BY_MEDIA_TYPE: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+
 // Uploads to the user's own folder in the meal-photos bucket (RLS requires
 // this exact prefix — see supabase/migrations/20260915000003_meal_photos_storage.sql)
 // and returns the storage path to pass to analyzeMealPhoto.
@@ -72,7 +79,13 @@ export async function uploadMealPhoto(file: File): Promise<string> {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Sign in required to log a meal.");
 
-  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  // Prefer the browser-reported MIME type — file.name.split(".").pop() never
+  // actually falls through to a default (split() always returns a non-empty
+  // array), so a filename with no dot silently became the "extension"
+  // before this fix. photo-analysis's own media-type check now primarily
+  // trusts the uploaded Blob's real .type too, so this mainly just keeps
+  // the stored object's name sensible.
+  const ext = EXT_BY_MEDIA_TYPE[file.type] ?? file.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
 
   const { error } = await supabase.storage.from("meal-photos").upload(path, file);

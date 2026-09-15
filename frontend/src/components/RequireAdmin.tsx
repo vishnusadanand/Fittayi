@@ -11,6 +11,12 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // Reset to "loading" on every user change, not just to/from null — a
+    // direct admin-account -> different-non-admin-account transition (e.g.
+    // a multi-tab session swap) would otherwise briefly keep the PREVIOUS
+    // user's isAdmin=true while this effect's query for the new user is
+    // still in flight, letting admin UI flash for a non-admin.
+    setIsAdmin(null);
     if (!user) {
       setIsAdmin(false);
       return;

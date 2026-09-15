@@ -16,6 +16,7 @@
 // @anthropic-ai/sdk npm package, to avoid pinning an SDK version in a Deno
 // edge function for what is otherwise a single, stable REST call.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { encodeBase64 } from "jsr:@std/encoding/base64";
 import {
   buildMealPhotoPrompt,
   computeItemMacros,
@@ -46,6 +47,13 @@ const ANTHROPIC_VERSION = "2023-06-01";
 const MODEL = "claude-sonnet-4-5-20250929";
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024; // matches plate-check.html's stated limit
 
+const ALLOWED_MEDIA_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+
+// Fallback only — the primary source of truth is the downloaded Blob's own
+// .type (set from the original upload's real content-type). Extension
+// guessing is fragile (no extension, wrong case, a mislabeled file) and was
+// previously the *only* check here, which is what api.ts's extension-
+// derivation bug (fixed alongside this) was silently feeding into.
 const MEDIA_TYPE_BY_EXT: Record<string, string> = {
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
@@ -154,14 +162,21 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "That photo is too large — try a smaller image." }, 413);
   }
 
-  const ext = storagePath.split(".").pop()?.toLowerCase() ?? "";
-  const mediaType = MEDIA_TYPE_BY_EXT[ext];
-  if (!mediaType) {
+  let mediaType = imageBlob.type;
+  if (!ALLOWED_MEDIA_TYPES.has(mediaType)) {
+    const ext = storagePath.split(".").pop()?.toLowerCase() ?? "";
+    mediaType = MEDIA_TYPE_BY_EXT[ext] ?? "";
+  }
+  if (!ALLOWED_MEDIA_TYPES.has(mediaType)) {
     return jsonResponse({ error: "Unsupported image type — use JPEG, PNG, WebP, or GIF." }, 400);
   }
 
+  // NOT btoa(String.fromCharCode(...bytes)) -- spreading a multi-megabyte
+  // byte array as individual call arguments blows the engine's max-
+  // arguments limit (tens of thousands, not millions) and throws on
+  // essentially any real photo. encodeBase64 handles arbitrary sizes.
   const imageBytes = new Uint8Array(await imageBlob.arrayBuffer());
-  const imageB64 = btoa(String.fromCharCode(...imageBytes));
+  const imageB64 = encodeBase64(imageBytes);
 
   // Full catalog vocabulary, not pre-filtered by meal slot (decided
   // 2026-09-15 — simpler than a filtering strategy, at higher per-request

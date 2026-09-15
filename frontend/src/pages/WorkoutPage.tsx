@@ -112,20 +112,31 @@ export function WorkoutPage() {
   }
 
   // Countdown timer — only runs during a timed exercise or rest phase.
+  // advance() is called from the interval callback directly, NOT from
+  // inside setRemaining's updater — React (StrictMode/dev, and potentially
+  // concurrent rendering generally) can invoke a state updater function
+  // twice, and advance() has its own side effects (more setState calls),
+  // so calling it from inside another updater risked silently skipping an
+  // extra exercise every time a timer hit zero. remainingRef mirrors state
+  // so the interval callback can read the current value without needing
+  // the functional-updater form for this decision.
+  const remainingRef = useRef(remaining);
+  useEffect(() => {
+    remainingRef.current = remaining;
+  }, [remaining]);
+
   useEffect(() => {
     if (screen !== "session" || paused) return;
     const isTimed = phase === "rest" || routine[idx]?.mode === "time";
     if (!isTimed) return;
 
     const handle = setInterval(() => {
-      setRemaining((r) => {
-        if (r <= 1) {
-          clearInterval(handle);
-          advance();
-          return 0;
-        }
-        return r - 1;
-      });
+      if (remainingRef.current <= 1) {
+        clearInterval(handle);
+        advance();
+      } else {
+        setRemaining((r) => r - 1);
+      }
     }, 1000);
     return () => clearInterval(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
