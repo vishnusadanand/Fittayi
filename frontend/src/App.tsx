@@ -10,6 +10,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { LogMealPage } from "./pages/LogMealPage";
 import { WorkoutPage } from "./pages/WorkoutPage";
 import { AdminPage } from "./pages/AdminPage";
+import { AccountPage } from "./pages/AccountPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
 
@@ -26,6 +27,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/log-meal" element={<LogMealPage />} />
           <Route path="/workout" element={<WorkoutPage />} />
+          <Route path="/account" element={<AccountPage />} />
           <Route
             path="/admin"
             element={

@@ -29,6 +29,9 @@ export function Navbar() {
               <Link to="/workout" className="text-ink hover:underline">
                 Workout
               </Link>
+              <Link to="/account" className="text-ink-muted hover:underline">
+                Account
+              </Link>
               <button onClick={handleSignOut} className="text-ink-muted hover:underline">
                 Sign out
               </button>
