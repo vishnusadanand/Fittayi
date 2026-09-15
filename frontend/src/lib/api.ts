@@ -3,6 +3,7 @@ import type {
   CalorieEngineResponse,
   DietType,
   DishSelectionResponse,
+  MealPhotoAnalysisResponse,
   MealSlot,
   QuizAnswers,
 } from "../types/fittayi";
@@ -56,4 +57,26 @@ export function generateWeeklyPlan(): Promise<{
   plan: unknown[];
 }> {
   return callFunction("generate-weekly-plan", {});
+}
+
+export function analyzeMealPhoto(storagePath: string): Promise<MealPhotoAnalysisResponse> {
+  return callFunction<MealPhotoAnalysisResponse>("photo-analysis", { storagePath });
+}
+
+// Uploads to the user's own folder in the meal-photos bucket (RLS requires
+// this exact prefix — see supabase/migrations/20260915000003_meal_photos_storage.sql)
+// and returns the storage path to pass to analyzeMealPhoto.
+export async function uploadMealPhoto(file: File): Promise<string> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Sign in required to log a meal.");
+
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+
+  const { error } = await supabase.storage.from("meal-photos").upload(path, file);
+  if (error) throw new Error(error.message);
+
+  return path;
 }

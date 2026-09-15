@@ -6,6 +6,7 @@ import { FloorClampBanner } from "../components/FloorClampBanner";
 import type {
   ActivityLevel,
   CalorieEngineResponse,
+  Condition,
   DietType,
   Dish,
   Goal,
@@ -41,6 +42,14 @@ const ALLERGEN_OPTIONS = ["milk", "egg", "fish", "shellfish", "mollusk", "peanut
 
 const CUISINE_OPTIONS = ["Kerala / South Indian (recommended)", "Pan-India", "No preference"];
 
+// PRD Section 6.6: feeds the workout module's exercise-substitution logic.
+const CONDITION_OPTIONS: { value: Condition; label: string }[] = [
+  { value: "knee", label: "Knee" },
+  { value: "back", label: "Back" },
+  { value: "wrist", label: "Wrist / shoulder" },
+  { value: "none", label: "None" },
+];
+
 const MEAL_SLOT_LABELS: Record<MealSlot, string> = {
   breakfast: "Breakfast",
   lunch: "Lunch",
@@ -58,6 +67,7 @@ type Step =
   | "diet"
   | "allergens"
   | "cuisine"
+  | "conditions"
   | "screening"
   | "result"
   | "blocked";
@@ -72,6 +82,7 @@ const STEP_ORDER: Step[] = [
   "diet",
   "allergens",
   "cuisine",
+  "conditions",
   "screening",
 ];
 
@@ -79,7 +90,7 @@ export function QuizPage() {
   const navigate = useNavigate();
   const [stepIndex, setStepIndex] = useState(0);
   const [step, setStep] = useState<Step>("sex");
-  const [answers, setAnswers] = useState<Partial<QuizAnswers>>({ allergens: [] });
+  const [answers, setAnswers] = useState<Partial<QuizAnswers>>({ allergens: [], conditions: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [calorieResult, setCalorieResult] = useState<CalorieEngineResponse | null>(null);
@@ -226,6 +237,10 @@ export function QuizPage() {
         </QuestionCard>
       )}
 
+      {step === "conditions" && (
+        <ConditionsQuestion onSubmit={(v) => goToNext({ conditions: v })} />
+      )}
+
       {step === "screening" && (
         <ScreeningQuestion age={answers.age ?? 0} onAnswer={handleScreening} />
       )}
@@ -347,6 +362,47 @@ function AllergenQuestion({ onSubmit }: { onSubmit: (allergens: string[]) => voi
       </div>
       <button
         onClick={() => onSubmit(selected)}
+        className="mt-6 rounded-full bg-gold px-6 py-2 font-medium text-backwater hover:brightness-90"
+      >
+        {selected.length === 0 ? "None of these — Next" : "Next"}
+      </button>
+    </QuestionCard>
+  );
+}
+
+function ConditionsQuestion({ onSubmit }: { onSubmit: (conditions: Condition[]) => void }) {
+  const [selected, setSelected] = useState<Condition[]>([]);
+
+  function toggle(value: Condition) {
+    setSelected((prev) => {
+      if (value === "none") return prev.includes("none") ? [] : ["none"];
+      const withoutNone = prev.filter((c) => c !== "none");
+      return withoutNone.includes(value) ? withoutNone.filter((c) => c !== value) : [...withoutNone, value];
+    });
+  }
+
+  return (
+    <QuestionCard title="Any injuries or conditions we should know about?">
+      <p className="mb-4 text-sm text-ink-muted">
+        Used to swap out risky exercises in your workout circuit — select all that apply.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {CONDITION_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => toggle(opt.value)}
+            className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+              selected.includes(opt.value)
+                ? "border-gold bg-gold text-backwater"
+                : "border-line bg-surface hover:border-gold"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={() => onSubmit(selected.length === 0 ? ["none"] : selected)}
         className="mt-6 rounded-full bg-gold px-6 py-2 font-medium text-backwater hover:brightness-90"
       >
         {selected.length === 0 ? "None of these — Next" : "Next"}

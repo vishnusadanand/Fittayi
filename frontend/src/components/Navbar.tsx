@@ -23,6 +23,12 @@ export function Navbar() {
               <Link to="/dashboard" className="text-ink hover:underline">
                 Dashboard
               </Link>
+              <Link to="/log-meal" className="text-ink hover:underline">
+                Log a meal
+              </Link>
+              <Link to="/workout" className="text-ink hover:underline">
+                Workout
+              </Link>
               <button onClick={handleSignOut} className="text-ink-muted hover:underline">
                 Sign out
               </button>
