@@ -1,0 +1,582 @@
+<title>Fittayi Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #10160f;
+    --bg-raise: #171f16;
+    --surface: #1c251b;
+    --surface-2: #212b1f;
+    --surface-border: rgba(230, 228, 214, 0.10);
+    --text: #f2efe4;
+    --text-muted: #a9b3a4;
+    --text-faint: #6f7a6a;
+    --gold: #e4a930;
+    --gold-soft: rgba(228, 169, 48, 0.16);
+    --green: #5c9172;
+    --green-soft: rgba(92, 145, 114, 0.16);
+    --chili: #c0524a;
+    --chili-soft: rgba(192, 82, 74, 0.16);
+    --focus: #e4a930;
+    --overlay: rgba(6, 9, 5, 0.6);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f7f4ea; --bg-raise: #efeadb; --surface: #ffffff; --surface-2: #f4f1e6;
+      --surface-border: rgba(29, 33, 23, 0.10); --text: #1c2418; --text-muted: #55604f;
+      --text-faint: #8b9483; --gold: #a9761c; --gold-soft: rgba(169, 118, 28, 0.12);
+      --green: #3f6b52; --green-soft: rgba(63, 107, 82, 0.12); --chili: #a3392f;
+      --chili-soft: rgba(163, 57, 47, 0.10); --focus: #a9761c; --overlay: rgba(20, 20, 14, 0.45);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f4ea; --bg-raise: #efeadb; --surface: #ffffff; --surface-2: #f4f1e6;
+    --surface-border: rgba(29, 33, 23, 0.10); --text: #1c2418; --text-muted: #55604f;
+    --text-faint: #8b9483; --gold: #a9761c; --gold-soft: rgba(169, 118, 28, 0.12);
+    --green: #3f6b52; --green-soft: rgba(63, 107, 82, 0.12); --chili: #a3392f;
+    --chili-soft: rgba(163, 57, 47, 0.10); --focus: #a9761c; --overlay: rgba(20, 20, 14, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: "Work Sans", ui-sans-serif, system-ui, sans-serif; padding-inline: 16px; }
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; font-weight: 600; margin: 0; }
+
+  .shell { max-width: 1080px; margin: 0 auto; padding-block: 28px 60px; display: flex; flex-direction: column; gap: 18px; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .brand h1 { font-size: 1.4rem; }
+  .brand .tag { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+
+  .access-note {
+    font-size: 0.76rem; color: var(--text-faint); background: var(--bg-raise);
+    border: 1px solid var(--surface-border); border-radius: 8px; padding: 7px 12px;
+    max-width: 340px; line-height: 1.5;
+  }
+
+  .layout { display: flex; gap: 20px; align-items: flex-start; }
+
+  nav.tabs {
+    display: flex; flex-direction: column; gap: 4px; width: 190px; flex-shrink: 0;
+    background: var(--surface); border: 1px solid var(--surface-border); border-radius: 12px; padding: 10px;
+  }
+  nav.tabs button {
+    all: unset; cursor: pointer; padding: 9px 12px; border-radius: 8px; font-size: 0.88rem;
+    color: var(--text-muted); display: flex; align-items: center; gap: 9px;
+  }
+  nav.tabs button:hover { background: var(--bg-raise); color: var(--text); }
+  nav.tabs button.active { background: var(--gold-soft); color: var(--gold); font-weight: 500; }
+  nav.tabs button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  nav.tabs .count {
+    margin-left: auto; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.7rem;
+    color: var(--text-faint); background: var(--bg-raise); border-radius: 100px; padding: 1px 7px;
+  }
+  nav.tabs button.active .count { color: var(--gold); }
+
+  main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+  .panel { display: none; flex-direction: column; gap: 16px; }
+  .panel.active { display: flex; }
+
+  section.card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 14px; padding: 20px; }
+  .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .card-head h2 { font-size: 1.05rem; }
+  .card-sub { font-size: 0.8rem; color: var(--text-faint); margin-top: 3px; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--surface-border); border-radius: 12px;
+    padding: 16px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .kpi .val { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 1.6rem; font-weight: 600; }
+  .kpi .lbl { font-size: 0.78rem; color: var(--text-faint); }
+
+  .banner { font-size: 0.82rem; border-radius: 9px; padding: 10px 14px; border: 1px solid; line-height: 1.5; }
+  .banner.info { color: var(--text-muted); background: var(--bg-raise); border-color: var(--surface-border); }
+  .banner.error { color: var(--chili); background: var(--chili-soft); border-color: var(--chili); }
+  .banner.success { color: var(--green); background: var(--green-soft); border-color: var(--green); }
+  .banner.sample { color: var(--gold); background: var(--gold-soft); border-color: var(--gold); }
+
+  button.btn {
+    font-family: inherit; font-size: 0.86rem; font-weight: 500; border-radius: 8px; padding: 9px 15px;
+    border: 1px solid transparent; cursor: pointer; transition: opacity 0.15s ease;
+  }
+  button.btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--gold); color: #201603; }
+  .btn-primary:hover:not(:disabled) { opacity: 0.88; }
+  .btn-ghost { background: transparent; border-color: var(--surface-border); color: var(--text-muted); }
+  .btn-ghost:hover:not(:disabled) { border-color: var(--text-faint); color: var(--text); }
+  .btn-danger { background: transparent; border-color: var(--chili); color: var(--chili); }
+  .btn-danger:hover:not(:disabled) { background: var(--chili-soft); }
+  .btn-sm { padding: 6px 11px; font-size: 0.78rem; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--surface-border); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.84rem; min-width: 560px; }
+  th, td { text-align: left; padding: 9px 12px; white-space: nowrap; }
+  thead th { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); background: var(--bg-raise); border-bottom: 1px solid var(--surface-border); }
+  tbody tr { border-bottom: 1px solid var(--surface-border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-raise); cursor: pointer; }
+  td.num, th.num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; text-align: right; }
+  .row-actions { display: flex; gap: 6px; }
+
+  .pill { font-size: 0.68rem; padding: 2px 9px; border-radius: 100px; font-weight: 500; white-space: nowrap; }
+  .pill-goal-fatloss { background: var(--chili-soft); color: var(--chili); }
+  .pill-goal-muscle { background: var(--green-soft); color: var(--green); }
+  .pill-goal-maintain { background: var(--gold-soft); color: var(--gold); }
+
+  .queue-list { display: flex; flex-direction: column; gap: 10px; }
+  .queue-item { border: 1px solid var(--surface-border); border-radius: 10px; padding: 13px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .queue-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+  .queue-name { font-weight: 500; font-size: 0.92rem; }
+  .flag-count { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.72rem; color: var(--text-faint); }
+  .queue-macros { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.76rem; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap; }
+  .queue-macros b { color: var(--text); }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: var(--overlay); display: flex; align-items: center;
+    justify-content: center; padding: 20px; z-index: 20;
+  }
+  .modal {
+    background: var(--surface); border: 1px solid var(--surface-border); border-radius: 14px;
+    padding: 22px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 { font-size: 1.05rem; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 0.76rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+  .field input, .field select {
+    font-family: inherit; font-size: 0.88rem; color: var(--text); background: var(--bg-raise);
+    border: 1px solid var(--surface-border); border-radius: 8px; padding: 8px 10px;
+  }
+  .field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+
+  footer.note { font-size: 0.76rem; color: var(--text-faint); text-align: center; line-height: 1.6; margin-top: 6px; }
+
+  @media (max-width: 680px) {
+    .layout { flex-direction: column; }
+    nav.tabs { width: 100%; flex-direction: row; overflow-x: auto; }
+    nav.tabs button { flex-shrink: 0; }
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .field-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="brand">
+      <h1>Fittayi Admin</h1>
+      <span class="tag">internal &middot; prototype</span>
+    </div>
+    <div class="access-note">Private to your Claude organization &mdash; only people you share this artifact with can open it, and only Admin/Owner-level sharing can save changes. Real production access control still needs to live in Fittayi's own backend.</div>
+  </div>
+
+  <div id="top-banner"></div>
+
+  <div class="layout">
+    <nav class="tabs" id="tabs">
+      <button data-tab="dashboard" class="active">Dashboard</button>
+      <button data-tab="users">Users<span class="count" id="count-users">&ndash;</span></button>
+      <button data-tab="dishes">Dish database<span class="count" id="count-dishes">&ndash;</span></button>
+      <button data-tab="queue">Review queue<span class="count" id="count-queue">&ndash;</span></button>
+    </nav>
+
+    <main>
+      <div class="panel active" id="panel-dashboard">
+        <section class="card">
+          <div class="card-head"><div><h2>Overview</h2><div class="card-sub">Seeded example data for this prototype &mdash; wire this up to Fittayi's real Supabase tables when it's ready to go live.</div></div></div>
+          <div class="kpi-row">
+            <div class="kpi"><span class="val" id="kpi-users">&ndash;</span><span class="lbl">Users</span></div>
+            <div class="kpi"><span class="val" id="kpi-dishes">&ndash;</span><span class="lbl">Dishes catalogued</span></div>
+            <div class="kpi"><span class="val" id="kpi-queue">&ndash;</span><span class="lbl">Open review items</span></div>
+          </div>
+        </section>
+        <section class="card">
+          <div class="card-head"><div><h2>Needs attention</h2><div class="card-sub">Highest-flagged unmatched items &mdash; your best candidates to add next.</div></div></div>
+          <div class="queue-list" id="dashboard-queue-preview"></div>
+        </section>
+      </div>
+
+      <div class="panel" id="panel-users">
+        <section class="card">
+          <div class="card-head"><div><h2>Users</h2><div class="card-sub">Example profiles in the shape collected at onboarding. Click a row to edit.</div></div></div>
+          <div class="table-wrap"><table id="users-table">
+            <thead><tr><th>Name</th><th class="num">Height</th><th class="num">Weight</th><th class="num">Body fat</th><th>Goal</th><th>Diet</th><th>Joined</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+        </section>
+      </div>
+
+      <div class="panel" id="panel-dishes">
+        <section class="card">
+          <div class="card-head">
+            <div><h2>Dish database</h2><div class="card-sub">The lookup table Plate Check matches photos against &mdash; calories here are what get served to users.</div></div>
+            <button class="btn btn-primary btn-sm" id="add-dish-btn">Add dish</button>
+          </div>
+          <div class="table-wrap"><table id="dishes-table">
+            <thead><tr><th>Dish</th><th>Standard serving</th><th class="num">Kcal</th><th class="num">Protein</th><th class="num">Carbs</th><th class="num">Fat</th><th class="num">Fiber</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+        </section>
+      </div>
+
+      <div class="panel" id="panel-queue">
+        <section class="card">
+          <div class="card-head"><div><h2>Review queue</h2><div class="card-sub">Items Plate Check couldn't match to the dish database, sorted by how often they've been flagged.</div></div></div>
+          <div class="queue-list" id="queue-list"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <footer class="note">One artifact-local database backs this prototype &mdash; in the real app, Users, Dish database, and Review queue would be the same Postgres tables the rest of Fittayi (including Plate Check) reads and writes.</footer>
+</div>
+
+<div id="modal-root"></div>
+
+<script>
+(function () {
+  var db = null;
+  var canWrite = true; // optimistic; corrected on first denied write
+
+  var SEED_DISHES = [
+    { name: 'Idli', unit: '1 medium (~40g)', cal: 58, protein: 2, carbs: 12, fat: 0.1, fiber: 0.5 },
+    { name: 'Plain dosa', unit: '1 medium', cal: 133, protein: 2.7, carbs: 18, fat: 5, fiber: 1 },
+    { name: 'Masala dosa', unit: '1, with potato filling', cal: 250, protein: 5, carbs: 35, fat: 10, fiber: 3 },
+    { name: 'Sambar', unit: '1 cup (240ml)', cal: 150, protein: 7, carbs: 22, fat: 4, fiber: 5 },
+    { name: 'Rasam', unit: '1 cup (240ml)', cal: 60, protein: 2, carbs: 10, fat: 1.5, fiber: 1 },
+    { name: 'Coconut chutney', unit: '2 tbsp (30g)', cal: 70, protein: 1, carbs: 3, fat: 6, fiber: 2 },
+    { name: 'Steamed rice', unit: '1 cup cooked (150g)', cal: 200, protein: 4, carbs: 45, fat: 0.4, fiber: 0.6 },
+    { name: 'Kerala fish curry', unit: '1 serving (~150g)', cal: 220, protein: 20, carbs: 6, fat: 13, fiber: 1 },
+    { name: 'Chicken curry', unit: '1 serving (~150g)', cal: 260, protein: 22, carbs: 7, fat: 16, fiber: 1 },
+    { name: 'Kerala beef curry', unit: '1 serving (~150g)', cal: 280, protein: 24, carbs: 6, fat: 18, fiber: 1 },
+    { name: 'Thoran', unit: '1/2 cup (75g)', cal: 90, protein: 2, carbs: 8, fat: 6, fiber: 3 },
+    { name: 'Avial', unit: '1/2 cup (100g)', cal: 120, protein: 3, carbs: 12, fat: 7, fiber: 3 },
+    { name: 'Appam', unit: '1 piece', cal: 120, protein: 2, carbs: 22, fat: 3, fiber: 0.5 },
+    { name: 'Puttu', unit: '1 cylinder (100g)', cal: 170, protein: 3, carbs: 36, fat: 1, fiber: 2 },
+    { name: 'Parotta', unit: '1 piece (60g)', cal: 260, protein: 5, carbs: 35, fat: 11, fiber: 1.5 },
+  ];
+
+  // NOTE for porting: timesFlagged here is a stored counter, fine for this
+  // demo's single-writer seed data. In the real app this must be a
+  // `GROUP BY seen_as` aggregate over an unmatched_food_events log table
+  // instead (a stored counter race-conditions under concurrent uploads —
+  // see README.md Section 2). The render/sort logic below (by flag count)
+  // stays the same either way; only where the number comes from changes.
+  var SEED_QUEUE = [
+    { seenAs: 'Green herb/curry-leaf chutney powder (podi)', cal: 45, protein: 1, carbs: 3, fat: 3, fiber: 1, timesFlagged: 7, status: 'open' },
+    { seenAs: 'Home-style mixed vegetable curry, recipe unclear', cal: 140, protein: 3, carbs: 14, fat: 8, fiber: 4, timesFlagged: 4, status: 'open' },
+    { seenAs: 'Banana chips (fried, small snack pack)', cal: 180, protein: 1, carbs: 20, fat: 11, fiber: 2, timesFlagged: 2, status: 'open' },
+    { seenAs: 'Filter coffee with extra sugar', cal: 70, protein: 2, carbs: 10, fat: 2, fiber: 0, timesFlagged: 1, status: 'open' },
+  ];
+
+  var SEED_USERS = [
+    { name: 'Arjun Menon', height: 175, weight: 78, bodyFat: 22, goal: 'Fat loss', diet: 'Non-vegetarian', joined: '2026-08-02' },
+    { name: 'Anjali Pillai', height: 160, weight: 58, bodyFat: 28, goal: 'Maintain weight', diet: 'Vegetarian', joined: '2026-08-05' },
+    { name: 'Sreekutty Nair', height: 165, weight: 63, bodyFat: 30, goal: 'Fat loss', diet: 'Vegetarian', joined: '2026-08-10' },
+    { name: 'Mohammed Rafi', height: 172, weight: 82, bodyFat: 24, goal: 'Muscle gain', diet: 'Non-vegetarian', joined: '2026-08-11' },
+    { name: 'Devika Warrier', height: 158, weight: 54, bodyFat: 26, goal: 'Muscle gain', diet: 'Vegan', joined: '2026-08-14' },
+    { name: 'Nikhil Joseph', height: 180, weight: 90, bodyFat: 27, goal: 'Fat loss', diet: 'Non-vegetarian', joined: '2026-08-20' },
+    { name: 'Fathima Beevi', height: 162, weight: 60, bodyFat: 25, goal: 'Maintain weight', diet: 'Vegetarian', joined: '2026-08-22' },
+  ];
+
+  function showTopBanner(kind, text) {
+    var el = document.getElementById('top-banner');
+    el.innerHTML = '';
+    if (!text) return;
+    var div = document.createElement('div');
+    div.className = 'banner ' + kind;
+    div.textContent = text;
+    el.appendChild(div);
+  }
+
+  function fmt(n) { return (typeof n === 'number' && isFinite(n)) ? (Math.round(n * 10) / 10) : '–'; }
+  function esc(s) { return String(s == null ? '' : s); }
+
+  function goalPillClass(goal) {
+    if (/fat loss/i.test(goal)) return 'pill-goal-fatloss';
+    if (/muscle/i.test(goal)) return 'pill-goal-muscle';
+    return 'pill-goal-maintain';
+  }
+
+  // ---- tabs ----
+  document.getElementById('tabs').addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-tab]');
+    if (!btn) return;
+    document.querySelectorAll('nav.tabs button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+    document.querySelectorAll('.panel').forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + btn.dataset.tab); });
+  });
+
+  // ---- generic modal ----
+  function openModal(title, fieldsHtml, onSave, opts) {
+    opts = opts || {};
+    var root = document.getElementById('modal-root');
+    root.innerHTML = '';
+    var overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+    var modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = '<h3>' + esc(title) + '</h3>' + fieldsHtml
+      + '<div class="modal-actions">'
+      + (opts.deleteLabel ? '<button class="btn btn-danger btn-sm" id="modal-delete" style="margin-right:auto;">' + esc(opts.deleteLabel) + '</button>' : '')
+      + '<button class="btn btn-ghost btn-sm" id="modal-cancel">Cancel</button>'
+      + '<button class="btn btn-primary btn-sm" id="modal-save">' + esc(opts.saveLabel || 'Save') + '</button>'
+      + '</div>';
+    overlay.appendChild(modal);
+    root.appendChild(overlay);
+    function close() { root.innerHTML = ''; }
+    modal.querySelector('#modal-cancel').addEventListener('click', close);
+    modal.querySelector('#modal-save').addEventListener('click', function () { onSave(modal, close); });
+    if (opts.deleteLabel) modal.querySelector('#modal-delete').addEventListener('click', function () { opts.onDelete(close); });
+    var firstInput = modal.querySelector('input, select');
+    if (firstInput) firstInput.focus();
+    return modal;
+  }
+
+  function handleWriteError(e, context) {
+    if (e && e.code === 'invalid_argument') {
+      canWrite = false;
+      showTopBanner('error', 'You have view-only access to this portal (or the write was rejected) — changes to ' + context + ' were not saved.');
+    } else {
+      showTopBanner('error', 'Couldn’t save ' + context + ' right now. Try again in a moment.');
+    }
+  }
+
+  // ================= DASHBOARD =================
+  function renderDashboard(users, dishes, queue) {
+    document.getElementById('kpi-users').textContent = users.length;
+    document.getElementById('kpi-dishes').textContent = dishes.length;
+    var open = queue.filter(function (q) { return q.data.status !== 'dismissed' && q.data.status !== 'resolved'; });
+    document.getElementById('kpi-queue').textContent = open.length;
+    document.getElementById('count-users').textContent = users.length;
+    document.getElementById('count-dishes').textContent = dishes.length;
+    document.getElementById('count-queue').textContent = open.length;
+
+    var top = open.slice().sort(function (a, b) { return (b.data.timesFlagged || 0) - (a.data.timesFlagged || 0); }).slice(0, 3);
+    var wrap = document.getElementById('dashboard-queue-preview');
+    wrap.innerHTML = '';
+    if (!top.length) {
+      wrap.innerHTML = '<div class="card-sub">Nothing waiting on review right now.</div>';
+      return;
+    }
+    top.forEach(function (item) { wrap.appendChild(queueItemEl(item)); });
+  }
+
+  // ================= USERS =================
+  function renderUsers(users) {
+    var tbody = document.querySelector('#users-table tbody');
+    tbody.innerHTML = '';
+    users.forEach(function (u) {
+      var d = u.data;
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + esc(d.name) + '</td>'
+        + '<td class="num">' + esc(d.height) + ' cm</td>'
+        + '<td class="num">' + esc(d.weight) + ' kg</td>'
+        + '<td class="num">' + esc(d.bodyFat) + '%</td>'
+        + '<td><span class="pill ' + goalPillClass(d.goal) + '">' + esc(d.goal) + '</span></td>'
+        + '<td>' + esc(d.diet) + '</td>'
+        + '<td>' + esc(d.joined) + '</td>';
+      tr.addEventListener('click', function () { openUserModal(u); });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function openUserModal(u) {
+    var d = u.data;
+    var fields = '<div class="field"><label>Name</label><input id="f-name" value="' + esc(d.name) + '"></div>'
+      + '<div class="field-grid">'
+      + '<div class="field"><label>Height (cm)</label><input id="f-height" type="number" value="' + esc(d.height) + '"></div>'
+      + '<div class="field"><label>Weight (kg)</label><input id="f-weight" type="number" value="' + esc(d.weight) + '"></div>'
+      + '</div>'
+      + '<div class="field-grid">'
+      + '<div class="field"><label>Body fat (%)</label><input id="f-bodyfat" type="number" value="' + esc(d.bodyFat) + '"></div>'
+      + '<div class="field"><label>Goal</label><select id="f-goal"><option' + (d.goal === 'Fat loss' ? ' selected' : '') + '>Fat loss</option><option' + (d.goal === 'Muscle gain' ? ' selected' : '') + '>Muscle gain</option><option' + (d.goal === 'Maintain weight' ? ' selected' : '') + '>Maintain weight</option></select></div>'
+      + '</div>'
+      + '<div class="field"><label>Diet</label><select id="f-diet"><option' + (d.diet === 'Vegetarian' ? ' selected' : '') + '>Vegetarian</option><option' + (d.diet === 'Non-vegetarian' ? ' selected' : '') + '>Non-vegetarian</option><option' + (d.diet === 'Vegan' ? ' selected' : '') + '>Vegan</option></select></div>';
+
+    openModal('Edit profile', fields, function (modal, close) {
+      var body = {
+        name: modal.querySelector('#f-name').value.trim() || d.name,
+        height: parseFloat(modal.querySelector('#f-height').value) || d.height,
+        weight: parseFloat(modal.querySelector('#f-weight').value) || d.weight,
+        bodyFat: parseFloat(modal.querySelector('#f-bodyfat').value) || d.bodyFat,
+        goal: modal.querySelector('#f-goal').value,
+        diet: modal.querySelector('#f-diet').value,
+      };
+      db.doc('users/' + u.id).update(body).then(function () {
+        close(); showTopBanner('success', 'Saved ' + body.name + '’s profile.');
+      }).catch(function (e) { handleWriteError(e, 'this profile'); });
+    });
+  }
+
+  // ================= DISHES =================
+  function renderDishes(dishes) {
+    var tbody = document.querySelector('#dishes-table tbody');
+    tbody.innerHTML = '';
+    dishes.slice().sort(function (a, b) { return a.data.name.localeCompare(b.data.name); }).forEach(function (dish) {
+      var d = dish.data;
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + esc(d.name) + '</td><td>' + esc(d.unit) + '</td>'
+        + '<td class="num">' + fmt(d.cal) + '</td><td class="num">' + fmt(d.protein) + 'g</td>'
+        + '<td class="num">' + fmt(d.carbs) + 'g</td><td class="num">' + fmt(d.fat) + 'g</td>'
+        + '<td class="num">' + fmt(d.fiber) + 'g</td>'
+        + '<td><div class="row-actions"><button class="btn btn-ghost btn-sm" data-edit>Edit</button></div></td>';
+      tr.querySelector('[data-edit]').addEventListener('click', function (e) { e.stopPropagation(); openDishModal(dish); });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function dishFieldsHtml(d) {
+    d = d || { name: '', unit: '', cal: '', protein: '', carbs: '', fat: '', fiber: '' };
+    return '<div class="field"><label>Dish name</label><input id="f-name" value="' + esc(d.name) + '"></div>'
+      + '<div class="field"><label>Standard serving</label><input id="f-unit" value="' + esc(d.unit) + '" placeholder="e.g. 1 medium (~40g)"></div>'
+      + '<div class="field-grid">'
+      + '<div class="field"><label>Kcal</label><input id="f-cal" type="number" value="' + esc(d.cal) + '"></div>'
+      + '<div class="field"><label>Protein (g)</label><input id="f-protein" type="number" step="0.1" value="' + esc(d.protein) + '"></div>'
+      + '</div>'
+      + '<div class="field-grid">'
+      + '<div class="field"><label>Carbs (g)</label><input id="f-carbs" type="number" step="0.1" value="' + esc(d.carbs) + '"></div>'
+      + '<div class="field"><label>Fat (g)</label><input id="f-fat" type="number" step="0.1" value="' + esc(d.fat) + '"></div>'
+      + '</div>'
+      + '<div class="field"><label>Fiber (g)</label><input id="f-fiber" type="number" step="0.1" value="' + esc(d.fiber) + '"></div>';
+  }
+
+  function readDishForm(modal) {
+    return {
+      name: modal.querySelector('#f-name').value.trim(),
+      unit: modal.querySelector('#f-unit').value.trim(),
+      cal: parseFloat(modal.querySelector('#f-cal').value) || 0,
+      protein: parseFloat(modal.querySelector('#f-protein').value) || 0,
+      carbs: parseFloat(modal.querySelector('#f-carbs').value) || 0,
+      fat: parseFloat(modal.querySelector('#f-fat').value) || 0,
+      fiber: parseFloat(modal.querySelector('#f-fiber').value) || 0,
+    };
+  }
+
+  function openDishModal(dish) {
+    var editing = !!dish;
+    openModal(editing ? 'Edit dish' : 'Add dish', dishFieldsHtml(editing ? dish.data : null), function (modal, close) {
+      var body = readDishForm(modal);
+      if (!body.name) { showTopBanner('error', 'Dish needs a name.'); return; }
+      var ref = editing ? db.doc('dishes/' + dish.id) : db.collection('dishes').doc();
+      ref.set(body).then(function () {
+        close(); showTopBanner('success', (editing ? 'Updated ' : 'Added ') + body.name + '.');
+      }).catch(function (e) { handleWriteError(e, 'the dish database'); });
+    }, editing ? {
+      deleteLabel: 'Delete',
+      onDelete: function (close) {
+        db.doc('dishes/' + dish.id).delete().then(function () { close(); showTopBanner('success', 'Deleted ' + dish.data.name + '.'); })
+          .catch(function (e) { handleWriteError(e, 'the dish database'); });
+      },
+    } : {});
+  }
+
+  document.getElementById('add-dish-btn').addEventListener('click', function () { openDishModal(null); });
+
+  // ================= REVIEW QUEUE =================
+  function queueItemEl(item) {
+    var d = item.data;
+    var el = document.createElement('div');
+    el.className = 'queue-item';
+    el.innerHTML = '<div class="queue-top">'
+      + '<div><div class="queue-name">"' + esc(d.seenAs) + '"</div><div class="flag-count">Flagged ' + (d.timesFlagged || 1) + '&times;</div></div>'
+      + '<div class="row-actions"><button class="btn btn-primary btn-sm" data-add>Add to database</button><button class="btn btn-ghost btn-sm" data-dismiss>Dismiss</button></div>'
+      + '</div>'
+      + '<div class="queue-macros"><span><b>' + fmt(d.cal) + '</b> kcal (est.)</span><span><b>' + fmt(d.protein) + '</b>g protein</span><span><b>' + fmt(d.carbs) + '</b>g carbs</span><span><b>' + fmt(d.fat) + '</b>g fat</span><span><b>' + fmt(d.fiber) + '</b>g fiber</span></div>';
+    el.querySelector('[data-add]').addEventListener('click', function () { promoteQueueItem(item); });
+    el.querySelector('[data-dismiss]').addEventListener('click', function () {
+      db.doc('review_queue/' + item.id).update({ status: 'dismissed' }).then(function () {
+        showTopBanner('success', 'Dismissed — won’t show as needing review again.');
+      }).catch(function (e) { handleWriteError(e, 'the review queue'); });
+    });
+    return el;
+  }
+
+  function renderQueue(queue) {
+    var list = document.getElementById('queue-list');
+    list.innerHTML = '';
+    var open = queue.filter(function (q) { return q.data.status !== 'dismissed' && q.data.status !== 'resolved'; })
+      .sort(function (a, b) { return (b.data.timesFlagged || 0) - (a.data.timesFlagged || 0); });
+    if (!open.length) {
+      list.innerHTML = '<div class="card-sub">Nothing waiting on review.</div>';
+      return;
+    }
+    open.forEach(function (item) { list.appendChild(queueItemEl(item)); });
+  }
+
+  function promoteQueueItem(item) {
+    var d = item.data;
+    openModal('Add to dish database', dishFieldsHtml({ name: d.seenAs, unit: '1 serving (estimate — confirm)', cal: d.cal, protein: d.protein, carbs: d.carbs, fat: d.fat, fiber: d.fiber }), function (modal, close) {
+      var body = readDishForm(modal);
+      if (!body.name) { showTopBanner('error', 'Dish needs a name.'); return; }
+      db.collection('dishes').doc().set(body).then(function () {
+        return db.doc('review_queue/' + item.id).update({ status: 'resolved' });
+      }).then(function () {
+        close(); showTopBanner('success', 'Added ' + body.name + ' to the dish database and cleared it from the queue.');
+      }).catch(function (e) { handleWriteError(e, 'the dish database'); });
+    }, { saveLabel: 'Add & resolve' });
+  }
+
+  // ================= LOAD / SEED / SUBSCRIBE =================
+  function seedIfEmpty(collectionPath, seedRows) {
+    return db.collection(collectionPath).limit(1).get().then(function (snap) {
+      if (!snap.empty) return;
+      var chain = Promise.resolve();
+      seedRows.forEach(function (row) {
+        chain = chain.then(function () { return db.collection(collectionPath).add(row); });
+      });
+      return chain;
+    });
+  }
+
+  function subscribeAll() {
+    var latest = { users: [], dishes: [], queue: [] };
+    function recomputeAll() { renderDashboard(latest.users, latest.dishes, latest.queue); renderUsers(latest.users); renderDishes(latest.dishes); renderQueue(latest.queue); }
+
+    db.collection('users').onSnapshot(function (snap) {
+      latest.users = snap.docs.map(function (doc) { return { id: doc.id, data: doc.data() }; });
+      recomputeAll();
+    }, function (e) { showTopBanner('error', 'Lost the live connection to Users (' + e.code + ').'); });
+
+    db.collection('dishes').onSnapshot(function (snap) {
+      latest.dishes = snap.docs.map(function (doc) { return { id: doc.id, data: doc.data() }; });
+      recomputeAll();
+    }, function (e) { showTopBanner('error', 'Lost the live connection to Dishes (' + e.code + ').'); });
+
+    db.collection('review_queue').onSnapshot(function (snap) {
+      latest.queue = snap.docs.map(function (doc) { return { id: doc.id, data: doc.data() }; });
+      recomputeAll();
+    }, function (e) { showTopBanner('error', 'Lost the live connection to the Review queue (' + e.code + ').'); });
+  }
+
+  (async function init() {
+    try {
+      db = await claude.use('db');
+    } catch (_) { db = null; }
+
+    if (!db) {
+      showTopBanner('info', 'This portal needs to be opened from inside Claude with the shared-database capability granted — open it from your Claude conversation rather than a plain browser tab.');
+      return;
+    }
+
+    try {
+      await Promise.all([
+        seedIfEmpty('dishes', SEED_DISHES),
+        seedIfEmpty('review_queue', SEED_QUEUE),
+        seedIfEmpty('users', SEED_USERS),
+      ]);
+      showTopBanner('sample', 'Users and the review queue are example data seeded for this prototype. The dish database matches Plate Check’s starting list — edits here demonstrate the workflow but live in this artifact’s own store, separate from Plate Check’s.');
+    } catch (e) {
+      handleWriteError(e, 'the initial data');
+    }
+
+    subscribeAll();
+  })();
+})();
+</script>

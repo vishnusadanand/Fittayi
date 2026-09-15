@@ -1,0 +1,540 @@
+<title>Daily Circuit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #10160f; --bg-raise: #171f16; --surface: #1c251b; --surface-border: rgba(230, 228, 214, 0.10);
+    --text: #f2efe4; --text-muted: #a9b3a4; --text-faint: #6f7a6a;
+    --gold: #e4a930; --gold-soft: rgba(228, 169, 48, 0.16);
+    --green: #5c9172; --green-soft: rgba(92, 145, 114, 0.16);
+    --chili: #c0524a; --chili-soft: rgba(192, 82, 74, 0.16);
+    --focus: #e4a930; --figure: #f2efe4;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f7f4ea; --bg-raise: #efeadb; --surface: #ffffff; --surface-border: rgba(29, 33, 23, 0.10);
+      --text: #1c2418; --text-muted: #55604f; --text-faint: #8b9483;
+      --gold: #a9761c; --gold-soft: rgba(169, 118, 28, 0.12);
+      --green: #3f6b52; --green-soft: rgba(63, 107, 82, 0.12);
+      --chili: #a3392f; --chili-soft: rgba(163, 57, 47, 0.10); --focus: #a9761c; --figure: #1c2418;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f4ea; --bg-raise: #efeadb; --surface: #ffffff; --surface-border: rgba(29, 33, 23, 0.10);
+    --text: #1c2418; --text-muted: #55604f; --text-faint: #8b9483;
+    --gold: #a9761c; --gold-soft: rgba(169, 118, 28, 0.12);
+    --green: #3f6b52; --green-soft: rgba(63, 107, 82, 0.12);
+    --chili: #a3392f; --chili-soft: rgba(163, 57, 47, 0.10); --focus: #a9761c; --figure: #1c2418;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: "Work Sans", ui-sans-serif, system-ui, sans-serif; padding-inline: 20px; padding-block: 36px 60px; display: flex; justify-content: center; }
+  main { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; }
+
+  .eyebrow { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+  h1 { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: clamp(1.6rem, 5vw, 2rem); margin: 6px 0 0; text-wrap: balance; }
+  .lede { color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin: 8px 0 0; }
+
+  section.card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 14px; padding: 20px; }
+  .card-title { font-family: "Fraunces", Georgia, serif; font-size: 1rem; font-weight: 600; margin: 0 0 3px; }
+  .card-sub { font-size: 0.8rem; color: var(--text-faint); margin: 0 0 14px; line-height: 1.5; }
+
+  .field-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .field-group .label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); }
+  .choice-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .choice {
+    border: 1px solid var(--surface-border); border-radius: 100px; padding: 8px 14px; font-size: 0.86rem;
+    cursor: pointer; background: var(--bg-raise); color: var(--text-muted); user-select: none;
+  }
+  .choice input { position: absolute; opacity: 0; pointer-events: none; }
+  .choice.checked { border-color: var(--gold); background: var(--gold-soft); color: var(--gold); font-weight: 500; }
+  .choice:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  button.btn {
+    font-family: inherit; font-size: 0.9rem; font-weight: 500; border-radius: 9px; padding: 11px 18px;
+    border: 1px solid transparent; cursor: pointer; transition: opacity 0.15s ease;
+  }
+  button.btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--gold); color: #201603; width: 100%; padding: 13px; font-size: 0.95rem; }
+  .btn-primary:hover:not(:disabled) { opacity: 0.88; }
+  .btn-ghost { background: transparent; border-color: var(--surface-border); color: var(--text-muted); }
+  .btn-ghost:hover:not(:disabled) { border-color: var(--text-faint); color: var(--text); }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-row .btn { flex: 1; }
+
+  .banner { font-size: 0.82rem; border-radius: 9px; padding: 10px 14px; border: 1px solid; line-height: 1.5; }
+  .banner.info { color: var(--text-muted); background: var(--bg-raise); border-color: var(--surface-border); }
+  .banner.success { color: var(--green); background: var(--green-soft); border-color: var(--green); }
+  .banner.warn { color: var(--gold); background: var(--gold-soft); border-color: var(--gold); }
+
+
+  .preview-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .preview-item { display: flex; justify-content: space-between; gap: 10px; font-size: 0.82rem; padding: 6px 0; border-bottom: 1px solid var(--surface-border); }
+  .preview-item:last-child { border-bottom: none; }
+  .preview-item .pname { color: var(--text); }
+  .preview-item .ptarget { color: var(--text-faint); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.78rem; }
+  .swap-note { font-size: 0.72rem; color: var(--gold); }
+
+  /* ---- session screen ---- */
+  .session-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.78rem; color: var(--text-faint); font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .progress-track { height: 5px; border-radius: 100px; background: var(--bg-raise); overflow: hidden; margin: 8px 0 18px; }
+  .progress-fill { height: 100%; background: var(--gold); border-radius: 100px; transition: width 0.3s ease; }
+
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+  .figure-wrap { width: 100%; max-width: 220px; aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center; }
+  .figure-wrap svg { width: 100%; height: 100%; }
+
+  .exercise-name { font-family: "Fraunces", Georgia, serif; font-size: 1.3rem; font-weight: 600; margin: 0; }
+  .exercise-target { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.85rem; color: var(--text-muted); }
+
+  .timer-big { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 2.6rem; font-weight: 600; color: var(--gold); }
+  .rest-label { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
+
+  .stage-note { font-size: 0.78rem; color: var(--text-faint); max-width: 32ch; }
+
+  footer.note { font-size: 0.76rem; color: var(--text-faint); text-align: center; line-height: 1.6; }
+
+  /* ---- stick figure joints ---- */
+  .figure .head { fill: none; stroke: var(--figure); stroke-width: 4; }
+  .figure line, .figure path { stroke: var(--figure); stroke-width: 5; stroke-linecap: round; fill: none; }
+  .torso-g { transform-box: fill-box; transform-origin: 50% 0%; }
+  .arm-l-g, .arm-r-g { transform-box: fill-box; }
+  .thigh-l-g, .thigh-r-g { transform-box: fill-box; }
+  .shin-l-g, .shin-r-g { transform-box: fill-box; }
+  @media (prefers-reduced-motion: reduce) {
+    .figure * { animation: none !important; }
+  }
+</style>
+
+<main>
+  <div>
+    <div class="eyebrow">Fittayi &middot; prototype</div>
+    <h1>Daily Circuit</h1>
+    <p class="lede">A bodyweight routine matched to your goal, with a timer that carries you through it. No equipment needed.</p>
+  </div>
+
+  <div id="banner-area"></div>
+
+  <!-- ============ SETUP SCREEN ============ -->
+  <section class="card" id="setup-screen">
+    <p class="card-title">Set up today's circuit</p>
+    <p class="card-sub">In the real app this comes from your saved profile &mdash; here you can try different combinations.</p>
+
+    <div class="field-group">
+      <div class="label">Goal</div>
+      <div class="choice-row" id="goal-row"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="label">Any injuries or conditions we should know about?</div>
+      <div class="choice-row" id="condition-row"></div>
+    </div>
+
+    <div class="preview-list" id="preview-list"></div>
+
+    <button class="btn btn-primary" id="start-btn" style="margin-top:16px;">Start circuit</button>
+  </section>
+
+  <!-- ============ SESSION SCREEN ============ -->
+  <section class="card" id="session-screen" hidden>
+    <div class="session-head">
+      <span id="session-goal-label"></span>
+      <span id="session-position"></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+    <div class="stage" id="stage"></div>
+
+    <div class="btn-row" style="margin-top:20px;">
+      <button class="btn btn-ghost" id="pause-btn">Pause</button>
+      <button class="btn btn-primary" id="advance-btn">Done &mdash; next</button>
+    </div>
+  </section>
+
+  <!-- ============ COMPLETE SCREEN ============ -->
+  <section class="card" id="complete-screen" hidden>
+    <p class="card-title">Circuit complete</p>
+    <div id="complete-banner-area"></div>
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-primary" id="restart-btn">Do it again</button>
+      <button class="btn btn-ghost" id="home-btn">Back to setup</button>
+    </div>
+  </section>
+
+  <footer class="note">This is what the daily reminder email checks: if today's circuit isn't marked done by evening, that's who gets nudged. Nothing here needs equipment or a gym.</footer>
+</main>
+
+<script>
+(function () {
+  // ================= exercise library (bodyweight only) =================
+  var EX = {
+    jacks:      { name: 'Jumping jacks',        anim: 'jack',      mode: 'time', target: 45, tags: ['knee'] },
+    squat:      { name: 'Bodyweight squats',    anim: 'squat',     mode: 'reps', target: 15, tags: ['knee'] },
+    climbers:   { name: 'Mountain climbers',     anim: 'kneedrive', mode: 'time', target: 30, tags: ['wrist','knee'] },
+    pushup:     { name: 'Push-ups',              anim: 'pushup',    mode: 'reps', target: 10, tags: ['wrist','shoulder'] },
+    highknees:  { name: 'High knees',            anim: 'kneedrive', mode: 'time', target: 30, tags: ['knee'] },
+    plank:      { name: 'Plank',                 anim: 'static',    mode: 'time', target: 30, tags: ['wrist','shoulder'] },
+    lunge:      { name: 'Alternating lunges',    anim: 'lunge',     mode: 'reps', target: 12, tags: ['knee'] },
+    burpee:     { name: 'Burpees',               anim: 'burpee',    mode: 'reps', target: 8,  tags: ['knee','wrist','back'] },
+    pikepush:   { name: 'Pike push-ups',         anim: 'pushup',    mode: 'reps', target: 8,  tags: ['wrist','shoulder'] },
+    bridge:     { name: 'Glute bridges',         anim: 'hiplift',   mode: 'reps', target: 15, tags: ['back'] },
+    plank45:    { name: 'Plank',                 anim: 'static',    mode: 'time', target: 45, tags: ['wrist','shoulder'] },
+    superman:   { name: 'Superman',              anim: 'hiplift',   mode: 'reps', target: 12, tags: ['back'] },
+    dips:       { name: 'Chair tricep dips',     anim: 'pushup',    mode: 'reps', target: 10, tags: ['wrist','shoulder'] },
+    wallsit:    { name: 'Wall sit',               anim: 'static',    mode: 'time', target: 40, tags: ['knee'] },
+    bridge12:   { name: 'Glute bridges',         anim: 'hiplift',   mode: 'reps', target: 12, tags: ['back'] },
+    sidecrunch: { name: 'Side crunches',          anim: 'twist',     mode: 'reps', target: 12, tags: ['back'] },
+    march:      { name: 'Standing march',        anim: 'kneedrive', mode: 'time', target: 30, tags: [] },
+  };
+
+  // safer swap-ins when a routine exercise's tags match a stated condition
+  var ALT = {
+    squat: { name: 'Standing march (knee-friendly)', anim: 'kneedrive', mode: 'time', target: 30, tags: [] },
+    lunge: { name: 'Standing march (knee-friendly)', anim: 'kneedrive', mode: 'time', target: 30, tags: [] },
+    wallsit: { name: 'Standing march (knee-friendly)', anim: 'kneedrive', mode: 'time', target: 30, tags: [] },
+    jacks: { name: 'Standing arm raises', anim: 'jack', mode: 'time', target: 30, tags: [] },
+    highknees: { name: 'Standing march', anim: 'kneedrive', mode: 'time', target: 30, tags: [] },
+    climbers: { name: 'Slow plank shoulder taps', anim: 'static', mode: 'time', target: 30, tags: [] },
+    burpee: { name: 'Step-back burpee (no jump)', anim: 'squat', mode: 'reps', target: 8, tags: [] },
+    pushup: { name: 'Wall push-ups', anim: 'pushup', mode: 'reps', target: 10, tags: [] },
+    pikepush: { name: 'Wall push-ups', anim: 'pushup', mode: 'reps', target: 10, tags: [] },
+    dips: { name: 'Seated arm presses', anim: 'pushup', mode: 'reps', target: 10, tags: [] },
+    plank: { name: 'Wall push-ups (light hold)', anim: 'pushup', mode: 'time', target: 20, tags: [] },
+    plank45: { name: 'Wall push-ups (light hold)', anim: 'pushup', mode: 'time', target: 20, tags: [] },
+    superman: { name: 'Gentle cat-cow stretch', anim: 'hiplift', mode: 'time', target: 30, tags: [] },
+    sidecrunch: { name: 'Standing side reach', anim: 'twist', mode: 'time', target: 20, tags: [] },
+    bridge: { name: 'Gentle cat-cow stretch', anim: 'hiplift', mode: 'time', target: 30, tags: [] },
+    bridge12: { name: 'Gentle cat-cow stretch', anim: 'hiplift', mode: 'time', target: 30, tags: [] },
+  };
+
+  var ROUTINES = {
+    fatloss: { label: 'Fat loss', ids: ['jacks','squat','climbers','pushup','highknees','plank','lunge','burpee'] },
+    muscle:  { label: 'Muscle gain', ids: ['pushup','squat','pikepush','bridge','plank45','superman','dips','wallsit'] },
+    maintain:{ label: 'Maintain weight', ids: ['squat','pushup','plank','lunge','bridge12','jacks','sidecrunch'] },
+  };
+
+  var CONDITIONS = [
+    { id: 'knee', label: 'Knee' },
+    { id: 'back', label: 'Back' },
+    { id: 'wrist', label: 'Wrist / shoulder', tag: 'wrist' },
+    { id: 'none', label: 'None' },
+  ];
+
+  var els = {};
+  ['setup-screen','session-screen','complete-screen','goal-row','condition-row','preview-list','start-btn',
+   'banner-area','session-goal-label','session-position','progress-fill','stage',
+   'pause-btn','advance-btn','complete-banner-area','restart-btn','home-btn'].forEach(function (id) {
+    els[id] = document.getElementById(id);
+  });
+
+  var state = { goal: 'fatloss', conditions: [], routine: [], idx: 0, phase: 'exercise', remaining: 0, paused: false, timerHandle: null, sessionStart: null };
+  var db = null;
+
+  // ---------------- setup UI ----------------
+  function choiceEl(id, label, checked, onChange) {
+    var wrap = document.createElement('label');
+    wrap.className = 'choice' + (checked ? ' checked' : '');
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = checked;
+    input.addEventListener('change', function () { onChange(input.checked); });
+    wrap.appendChild(input);
+    wrap.appendChild(document.createTextNode(label));
+    return wrap;
+  }
+
+  function renderGoalRow() {
+    els['goal-row'].innerHTML = '';
+    Object.keys(ROUTINES).forEach(function (key) {
+      var el = choiceEl(key, ROUTINES[key].label, state.goal === key, function () {
+        state.goal = key; renderGoalRow(); renderPreview();
+      });
+      el.classList.toggle('checked', state.goal === key);
+      els['goal-row'].appendChild(el);
+    });
+  }
+
+  function renderConditionRow() {
+    els['condition-row'].innerHTML = '';
+    CONDITIONS.forEach(function (c) {
+      var checked = state.conditions.indexOf(c.id) !== -1;
+      var el = choiceEl(c.id, c.label, checked, function (isChecked) {
+        if (c.id === 'none') {
+          state.conditions = isChecked ? ['none'] : [];
+        } else {
+          state.conditions = state.conditions.filter(function (x) { return x !== 'none'; });
+          if (isChecked) state.conditions.push(c.id); else state.conditions = state.conditions.filter(function (x) { return x !== c.id; });
+        }
+        renderConditionRow(); renderPreview();
+      });
+      els['condition-row'].appendChild(el);
+    });
+  }
+
+  function buildRoutine() {
+    var conds = state.conditions.filter(function (c) { return c !== 'none'; });
+    return ROUTINES[state.goal].ids.map(function (id) {
+      var base = EX[id];
+      var flagged = base.tags.some(function (t) { return conds.indexOf(t) !== -1; });
+      if (flagged && ALT[id]) {
+        return Object.assign({ id: id, swapped: true, originalName: base.name }, ALT[id]);
+      }
+      return Object.assign({ id: id, swapped: false }, base);
+    });
+  }
+
+  function renderPreview() {
+    var routine = buildRoutine();
+    els['preview-list'].innerHTML = '';
+    routine.forEach(function (ex) {
+      var row = document.createElement('div');
+      row.className = 'preview-item';
+      var targetStr = ex.mode === 'time' ? (ex.target + 's') : (ex.target + ' reps');
+      row.innerHTML = '<span class="pname">' + ex.name + (ex.swapped ? ' <span class="swap-note">(swapped for ' + ex.originalName + ')</span>' : '') + '</span><span class="ptarget">' + targetStr + '</span>';
+      els['preview-list'].appendChild(row);
+    });
+  }
+
+  // ---------------- completion tracking (persisted via db) ----------------
+  // v1 has no in-app streak UI (FITTAYI_PRD.md Section 6.6) — tracking exists
+  // only so the daily reminder cron job can query "who hasn't completed
+  // today" (real version: a workout_completions row per user per date, in
+  // whatever timezone the cron job uses as its "today" boundary — see PRD
+  // Section 12 open question). This function stores completion, nothing
+  // else; it deliberately does not compute or return a streak count.
+  function todayStr() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+  function loadCompletionStatus() {
+    if (!db) return;
+    db.doc('progress/completion').get().then(function (snap) {
+      var data = snap.exists ? snap.data() : { lastCompletedDate: null };
+      if (data.lastCompletedDate === todayStr()) {
+        showBanner(els['banner-area'], 'success', 'You’ve already completed today’s circuit — nice work. Redoing it won’t send you a reminder email later.');
+      }
+    }).catch(function () { /* best-effort */ });
+  }
+
+  function markCompleted() {
+    if (!db) return Promise.resolve();
+    var today = todayStr();
+    return db.doc('progress/completion').set({ lastCompletedDate: today }).then(function () {
+      return { lastCompletedDate: today };
+    }).catch(function () { return null; });
+  }
+
+  function showBanner(target, kind, text) {
+    target.innerHTML = '';
+    if (!text) return;
+    var div = document.createElement('div');
+    div.className = 'banner ' + kind;
+    div.textContent = text;
+    target.appendChild(div);
+  }
+
+  // ---------------- SVG stick figure ----------------
+  function figureSvg() {
+    return '<svg viewBox="0 0 120 160" class="figure">'
+      + '<circle class="head" cx="60" cy="22" r="12"/>'
+      + '<g class="torso-g"><line x1="60" y1="34" x2="60" y2="88"/></g>'
+      + '<g class="arm-l-g" style="transform-origin:60px 42px"><line x1="60" y1="42" x2="34" y2="66"/></g>'
+      + '<g class="arm-r-g" style="transform-origin:60px 42px"><line x1="60" y1="42" x2="86" y2="66"/></g>'
+      + '<g class="thigh-l-g" style="transform-origin:60px 88px"><line x1="60" y1="88" x2="46" y2="120"/>'
+        + '<g class="shin-l-g" style="transform-origin:46px 120px"><line x1="46" y1="120" x2="44" y2="152"/></g></g>'
+      + '<g class="thigh-r-g" style="transform-origin:60px 88px"><line x1="60" y1="88" x2="74" y2="120"/>'
+        + '<g class="shin-r-g" style="transform-origin:74px 120px"><line x1="74" y1="120" x2="76" y2="152"/></g></g>'
+      + '</svg>';
+  }
+
+  var ANIM_CSS = {
+    squat: '.anim-squat .torso-g{animation:sqTorso 1.8s ease-in-out infinite}'
+      + '.anim-squat .thigh-l-g{animation:sqThighL 1.8s ease-in-out infinite}.anim-squat .thigh-r-g{animation:sqThighR 1.8s ease-in-out infinite}'
+      + '.anim-squat .shin-l-g{animation:sqShinL 1.8s ease-in-out infinite}.anim-squat .shin-r-g{animation:sqShinR 1.8s ease-in-out infinite}'
+      + '.anim-squat .arm-l-g{animation:sqArmL 1.8s ease-in-out infinite}.anim-squat .arm-r-g{animation:sqArmR 1.8s ease-in-out infinite}'
+      + '@keyframes sqTorso{0%,100%{transform:translateY(0)}50%{transform:translateY(18px)}}'
+      + '@keyframes sqThighL{0%,100%{transform:rotate(0)}50%{transform:rotate(18deg)}}'
+      + '@keyframes sqThighR{0%,100%{transform:rotate(0)}50%{transform:rotate(-18deg)}}'
+      + '@keyframes sqShinL{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg)}}'
+      + '@keyframes sqShinR{0%,100%{transform:rotate(0)}50%{transform:rotate(28deg)}}'
+      + '@keyframes sqArmL{0%,100%{transform:rotate(0)}50%{transform:rotate(-40deg)}}'
+      + '@keyframes sqArmR{0%,100%{transform:rotate(0)}50%{transform:rotate(40deg)}}',
+    jack: '.anim-jack .arm-l-g{animation:jkArmL 1s ease-in-out infinite}.anim-jack .arm-r-g{animation:jkArmR 1s ease-in-out infinite}'
+      + '.anim-jack .thigh-l-g{animation:jkLegL 1s ease-in-out infinite}.anim-jack .thigh-r-g{animation:jkLegR 1s ease-in-out infinite}'
+      + '@keyframes jkArmL{0%,100%{transform:rotate(0)}50%{transform:rotate(-150deg)}}'
+      + '@keyframes jkArmR{0%,100%{transform:rotate(0)}50%{transform:rotate(150deg)}}'
+      + '@keyframes jkLegL{0%,100%{transform:rotate(0)}50%{transform:rotate(-22deg)}}'
+      + '@keyframes jkLegR{0%,100%{transform:rotate(0)}50%{transform:rotate(22deg)}}',
+    pushup: '.anim-pushup .torso-g{animation:puTorso 1.6s ease-in-out infinite}'
+      + '.anim-pushup .arm-l-g{animation:puArmL 1.6s ease-in-out infinite}.anim-pushup .arm-r-g{animation:puArmR 1.6s ease-in-out infinite}'
+      + '@keyframes puTorso{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(10px) rotate(-4deg)}}'
+      + '@keyframes puArmL{0%,100%{transform:rotate(0)}50%{transform:rotate(-25deg)}}'
+      + '@keyframes puArmR{0%,100%{transform:rotate(0)}50%{transform:rotate(25deg)}}',
+    static: '.anim-static .torso-g{animation:stBreathe 2.4s ease-in-out infinite}'
+      + '@keyframes stBreathe{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}',
+    kneedrive: '.anim-kneedrive .thigh-l-g{animation:kdThighL 0.8s ease-in-out infinite}.anim-kneedrive .thigh-r-g{animation:kdThighR 0.8s ease-in-out infinite}'
+      + '.anim-kneedrive .shin-l-g{animation:kdShinL 0.8s ease-in-out infinite}.anim-kneedrive .shin-r-g{animation:kdShinR 0.8s ease-in-out infinite}'
+      + '.anim-kneedrive .arm-l-g{animation:kdArmL 0.8s ease-in-out infinite}.anim-kneedrive .arm-r-g{animation:kdArmR 0.8s ease-in-out infinite}'
+      + '@keyframes kdThighL{0%,100%{transform:rotate(0)}50%{transform:rotate(-60deg)}}'
+      + '@keyframes kdThighR{0%,100%{transform:rotate(0)}50%{transform:rotate(50deg)}}'
+      + '@keyframes kdShinL{0%,100%{transform:rotate(0)}50%{transform:rotate(-40deg)}}'
+      + '@keyframes kdShinR{0%,100%{transform:rotate(0)}50%{transform:rotate(10deg)}}'
+      + '@keyframes kdArmL{0%,100%{transform:rotate(0)}50%{transform:rotate(30deg)}}'
+      + '@keyframes kdArmR{0%,100%{transform:rotate(0)}50%{transform:rotate(-30deg)}}',
+    lunge: '.anim-lunge .thigh-l-g{animation:lgThighL 1.6s ease-in-out infinite}.anim-lunge .thigh-r-g{animation:lgThighR 1.6s ease-in-out infinite}'
+      + '.anim-lunge .shin-l-g{animation:lgShinL 1.6s ease-in-out infinite}.anim-lunge .shin-r-g{animation:lgShinR 1.6s ease-in-out infinite}'
+      + '.anim-lunge .torso-g{animation:lgTorso 1.6s ease-in-out infinite}'
+      + '@keyframes lgThighL{0%,100%{transform:rotate(0)}50%{transform:rotate(-35deg)}}'
+      + '@keyframes lgThighR{0%,100%{transform:rotate(0)}50%{transform:rotate(25deg)}}'
+      + '@keyframes lgShinL{0%,100%{transform:rotate(0)}50%{transform:rotate(15deg)}}'
+      + '@keyframes lgShinR{0%,100%{transform:rotate(0)}50%{transform:rotate(-45deg)}}'
+      + '@keyframes lgTorso{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}',
+    hiplift: '.anim-hiplift .torso-g{animation:hlTorso 1.8s ease-in-out infinite}'
+      + '.anim-hiplift .thigh-l-g{animation:hlThigh 1.8s ease-in-out infinite}.anim-hiplift .thigh-r-g{animation:hlThigh 1.8s ease-in-out infinite}'
+      + '@keyframes hlTorso{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}'
+      + '@keyframes hlThigh{0%,100%{transform:rotate(0)}50%{transform:rotate(8deg)}}',
+    twist: '.anim-twist .torso-g{animation:twTorso 1.4s ease-in-out infinite}'
+      + '@keyframes twTorso{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg)}}',
+    burpee: '.anim-burpee .torso-g{animation:buTorso 2s ease-in-out infinite}'
+      + '.anim-burpee .thigh-l-g{animation:buThighL 2s ease-in-out infinite}.anim-burpee .thigh-r-g{animation:buThighR 2s ease-in-out infinite}'
+      + '.anim-burpee .arm-l-g{animation:buArmL 2s ease-in-out infinite}.anim-burpee .arm-r-g{animation:buArmR 2s ease-in-out infinite}'
+      + '@keyframes buTorso{0%,40%,100%{transform:translateY(0)}20%{transform:translateY(20px) rotate(-6deg)}70%{transform:translateY(-6px)}}'
+      + '@keyframes buThighL{0%,40%,100%{transform:rotate(0)}20%{transform:rotate(20deg)}70%{transform:rotate(-15deg)}}'
+      + '@keyframes buThighR{0%,40%,100%{transform:rotate(0)}20%{transform:rotate(-20deg)}70%{transform:rotate(15deg)}}'
+      + '@keyframes buArmL{0%,40%,100%{transform:rotate(0)}70%{transform:rotate(-150deg)}}'
+      + '@keyframes buArmR{0%,40%,100%{transform:rotate(0)}70%{transform:rotate(150deg)}}',
+  };
+
+  (function injectAnimCss() {
+    var style = document.createElement('style');
+    // FITTAYI_PRD.md Section 8.3 requires respecting prefers-reduced-motion
+    // for any transition. These loops are instructional (they show exercise
+    // form), not ambient decoration, so on reduced-motion we freeze the
+    // figure at its rest pose rather than hide it — the reference pose still
+    // has value even without the continuous motion.
+    var reducedMotionCss = '@media (prefers-reduced-motion: reduce) { .figure-wrap * { animation: none !important; } }';
+    style.textContent = Object.keys(ANIM_CSS).map(function (k) { return ANIM_CSS[k]; }).join('\n') + '\n' + reducedMotionCss;
+    document.head.appendChild(style);
+  })();
+
+  // ---------------- session logic ----------------
+  function fmtTime(s) { var m = Math.floor(s / 60); var sec = s % 60; return m + ':' + String(sec).padStart(2, '0'); }
+
+  function renderStage() {
+    var ex = state.routine[state.idx];
+    var total = state.routine.length;
+    els['session-goal-label'].textContent = ROUTINES[state.goal].label + ' circuit';
+    els['session-position'].textContent = (state.idx + 1) + ' / ' + total;
+    els['progress-fill'].style.width = Math.round(((state.idx + (state.phase === 'rest' ? 1 : 0)) / total) * 100) + '%';
+
+    var html = '<div class="figure-wrap anim-' + (state.phase === 'rest' ? 'static' : ex.anim) + '">' + figureSvg() + '</div>';
+    if (state.phase === 'rest') {
+      html += '<div class="rest-label">Rest</div><div class="timer-big">' + fmtTime(state.remaining) + '</div>'
+        + '<p class="stage-note">Next: ' + state.routine[state.idx].name + '</p>';
+      els['advance-btn'].textContent = 'Skip rest';
+    } else {
+      html += '<h2 class="exercise-name">' + ex.name + '</h2>';
+      if (ex.mode === 'time') {
+        html += '<div class="timer-big">' + fmtTime(state.remaining) + '</div><div class="exercise-target">target: ' + ex.target + 's</div>';
+      } else {
+        html += '<div class="exercise-target">Target: ' + ex.target + ' reps &middot; take your time</div>';
+      }
+      if (ex.swapped) html += '<p class="stage-note">Swapped from ' + ex.originalName + ' based on what you flagged.</p>';
+      els['advance-btn'].textContent = ex.mode === 'time' ? 'Skip to next' : 'Done — next';
+    }
+    els['stage'].innerHTML = html;
+  }
+
+  function clearTimer() { if (state.timerHandle) { clearInterval(state.timerHandle); state.timerHandle = null; } }
+
+  function tick() {
+    if (state.paused) return;
+    state.remaining -= 1;
+    if (state.remaining <= 0) {
+      clearTimer();
+      advance();
+      return;
+    }
+    var timerEl = els['stage'].querySelector('.timer-big');
+    if (timerEl) timerEl.textContent = fmtTime(state.remaining);
+    var fillPct = Math.round(((state.idx + (state.phase === 'rest' ? 1 : 0)) / state.routine.length) * 100);
+    els['progress-fill'].style.width = fillPct + '%';
+  }
+
+  function startPhaseTimerIfNeeded() {
+    clearTimer();
+    var ex = state.routine[state.idx];
+    if (state.phase === 'rest') {
+      state.remaining = 15;
+      state.timerHandle = setInterval(tick, 1000);
+    } else if (ex.mode === 'time') {
+      state.remaining = ex.target;
+      state.timerHandle = setInterval(tick, 1000);
+    }
+    renderStage();
+  }
+
+  function advance() {
+    clearTimer();
+    if (state.phase === 'exercise') {
+      if (state.idx < state.routine.length - 1) {
+        state.phase = 'rest';
+        startPhaseTimerIfNeeded();
+      } else {
+        finishSession();
+      }
+    } else {
+      state.idx += 1;
+      state.phase = 'exercise';
+      startPhaseTimerIfNeeded();
+    }
+  }
+
+  els['advance-btn'].addEventListener('click', advance);
+  els['pause-btn'].addEventListener('click', function () {
+    state.paused = !state.paused;
+    els['pause-btn'].textContent = state.paused ? 'Resume' : 'Pause';
+  });
+
+  function finishSession() {
+    els['session-screen'].hidden = true;
+    els['complete-screen'].hidden = false;
+    var elapsed = Math.round((Date.now() - state.sessionStart) / 1000);
+    markCompleted().then(function () {
+      showBanner(els['complete-banner-area'], 'success', 'Nice work — circuit done in about ' + fmtTime(elapsed) + '. Today is marked complete, so the reminder email would skip you tonight.');
+    });
+  }
+
+  els['restart-btn'].addEventListener('click', function () { beginSession(); });
+  els['home-btn'].addEventListener('click', function () {
+    els['complete-screen'].hidden = true;
+    els['setup-screen'].hidden = false;
+    loadCompletionStatus();
+  });
+
+  function beginSession() {
+    state.routine = buildRoutine();
+    state.idx = 0;
+    state.phase = 'exercise';
+    state.paused = false;
+    state.sessionStart = Date.now();
+    els['setup-screen'].hidden = true;
+    els['complete-screen'].hidden = true;
+    els['session-screen'].hidden = false;
+    els['pause-btn'].textContent = 'Pause';
+    startPhaseTimerIfNeeded();
+  }
+
+  els['start-btn'].addEventListener('click', beginSession);
+
+  // ---------------- init ----------------
+  renderGoalRow();
+  renderConditionRow();
+  renderPreview();
+
+  (async function init() {
+    try { db = await claude.use('db'); } catch (_) { db = null; }
+    if (db) loadCompletionStatus();
+  })();
+})();
+</script>
