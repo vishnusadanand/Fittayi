@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { computeCalorieTargets, selectDish } from "../lib/api";
 import { Disclaimer } from "../components/Disclaimer";
 import { FloorClampBanner } from "../components/FloorClampBanner";
+import { CONDITION_OPTIONS } from "../lib/workout";
 import type {
   ActivityLevel,
   CalorieEngineResponse,
@@ -41,14 +42,6 @@ const DIET_OPTIONS: { value: DietType; label: string }[] = [
 const ALLERGEN_OPTIONS = ["milk", "egg", "fish", "shellfish", "mollusk", "peanut", "gluten", "soy", "nuts"];
 
 const CUISINE_OPTIONS = ["Kerala / South Indian (recommended)", "Pan-India", "No preference"];
-
-// PRD Section 6.6: feeds the workout module's exercise-substitution logic.
-const CONDITION_OPTIONS: { value: Condition; label: string }[] = [
-  { value: "knee", label: "Knee" },
-  { value: "back", label: "Back" },
-  { value: "wrist", label: "Wrist / shoulder" },
-  { value: "none", label: "None" },
-];
 
 const MEAL_SLOT_LABELS: Record<MealSlot, string> = {
   breakfast: "Breakfast",

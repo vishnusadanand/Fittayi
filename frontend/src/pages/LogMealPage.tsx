@@ -83,6 +83,29 @@ export function LogMealPage() {
       const storagePath = await uploadMealPhoto(file);
       setSavedPhotoPath(storagePath);
       const result = await analyzeMealPhoto(storagePath);
+
+      // The dishes list was fetched once at mount — a dish activated since
+      // then would be matched correctly by the server (which queries live)
+      // but missing from our local dishById, silently zeroing that item's
+      // macros in computeMacros(). Fetch anything the analysis matched that
+      // we don't already have before rendering, so that can't happen.
+      const matchedIds = [...new Set(result.items.map((i: MealPhotoItem) => i.matched_dish_id).filter(Boolean))] as string[];
+      const missingIds = matchedIds.filter((id) => !dishById.has(id));
+      if (missingIds.length > 0) {
+        const { data: missingRows } = await supabase
+          .from("dishes")
+          .select("id, name, serving_size, calories, protein_g, carbs_g, fat_g, fiber_g")
+          .in("id", missingIds);
+        if (missingRows && missingRows.length > 0) {
+          setDishes((prev) => [...prev, ...(missingRows as DishOption[])]);
+          setDishById((prev) => {
+            const next = new Map(prev);
+            for (const d of missingRows as DishOption[]) next.set(d.id, d);
+            return next;
+          });
+        }
+      }
+
       setItems(
         result.items.map((item: MealPhotoItem) => ({
           matchedDishId: item.matched_dish_id,

@@ -86,18 +86,29 @@ Deno.serve(async (req: Request) => {
     .map((r: { user_id: string }) => r.user_id)
     .filter((id: string) => !completedUserIds.has(id));
 
+  // Batched, not one-at-a-time: a fully sequential loop does 2 network
+  // round-trips per user, and Edge Functions have a bounded execution
+  // time — a large enough user base would time out partway through,
+  // silently leaving the rest unreminded for the day with no retry. Not
+  // fully unbounded parallel either, to stay reasonable against the auth
+  // admin API and (eventually) whatever email provider's rate limits.
+  const BATCH_SIZE = 20;
   let sent = 0;
   let failed = 0;
-  for (const userId of pendingUserIds) {
-    const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
-    const email = userData?.user?.email;
-    if (userError || !email) {
-      failed += 1;
-      continue;
+  for (let i = 0; i < pendingUserIds.length; i += BATCH_SIZE) {
+    const batch = pendingUserIds.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(
+      batch.map(async (userId: string) => {
+        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
+        const email = userData?.user?.email;
+        if (userError || !email) return false;
+        return sendReminderEmail(email);
+      })
+    );
+    for (const ok of results) {
+      if (ok) sent += 1;
+      else failed += 1;
     }
-    const ok = await sendReminderEmail(email);
-    if (ok) sent += 1;
-    else failed += 1;
   }
 
   return jsonResponse({ date: today, candidates: pendingUserIds.length, sent, failed }, 200);
